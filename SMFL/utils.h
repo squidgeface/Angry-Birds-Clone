@@ -6,3 +6,5 @@
 
 using namespace std;
 using namespace sf;
+
+const float SCALE = 30.0f;
