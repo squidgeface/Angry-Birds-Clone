@@ -1,3 +1,0 @@
-﻿  Main.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  Graphic Thing.vcxproj -> H:\Year 2\Semester 2\GD2P02 - Physics Programming\physics\Exercises\Debug\openGL Summ3.exe

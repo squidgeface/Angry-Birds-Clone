@@ -23,7 +23,7 @@
     <ProjectGuid>{81FF9820-4D7C-4AB7-86AD-3B82E4975C8D}</ProjectGuid>
     <RootNamespace>GraphicThing</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>openGL Summ3</ProjectName>
+    <ProjectName>Ex5</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -194,20 +194,9 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Shaders\blinnFshader.txt" />
-    <Text Include="Resources\Shaders\CMFshader.txt" />
-    <Text Include="Resources\Shaders\CMRFshader.txt" />
-    <Text Include="Resources\Shaders\CMRvertexshader.txt" />
-    <Text Include="Resources\Shaders\CMvertexshader.txt" />
     <Text Include="Resources\Shaders\fragshader.txt" />
-    <Text Include="Resources\Shaders\fragshader2.txt" />
-    <Text Include="Resources\Shaders\ModelFshader.txt" />
-    <Text Include="Resources\Shaders\ModelVShader.txt" />
-    <Text Include="Resources\Shaders\phongFshader.txt" />
-    <Text Include="Resources\Shaders\rimFshader.txt" />
     <Text Include="Resources\Shaders\textFragmentShader.txt" />
     <Text Include="Resources\Shaders\textVertexShader.txt" />
-    <Text Include="Resources\Shaders\3Dvertexshader.txt" />
     <Text Include="Resources\Shaders\vertexshader.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,0 +1,11 @@
+﻿  Main.cpp
+  gameManager.cpp
+  input.cpp
+  plane.cpp
+  prefab.cpp
+  Generating code
+  20 of 481 functions ( 4.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Graphic Thing.vcxproj -> H:\Year 2\Semester 2\GD2P02 - Physics Programming\Programming\Physics-Exercises\Release\Ex5.exe

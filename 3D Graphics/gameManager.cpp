@@ -15,9 +15,7 @@
 #include "gameManager.h"
 
 CGameManager::CGameManager()
-	: m_eGameState(GameState::MENU)
-	, m_giCubeMap(0)
-	, m_giStaticProgram(0)
+	: m_giStaticProgram(0)
 	, m_giTextProgram(0)
 	, m_fcounter(0)
 	, m_bPaused(false)
@@ -28,8 +26,6 @@ CGameManager::CGameManager()
 	m_pTime = new CTime();
 	m_pInput = new CInput();
 	m_pOrthoCamera = new CCamera();
-	m_pProjCamera = new CCamera();
-	m_pAudioSystem = new CAudio();
 	TestCase1 = new CTextLabel();
 	TestCase2 = new CTextLabel();
 	TestCase3 = new CTextLabel();
@@ -87,15 +83,14 @@ void CGameManager::InitialiseWindow(int argc, char **argv)
 
 	//Set Up Camera from class
 	m_pOrthoCamera->SetOrtho();
-	m_pProjCamera->SetProjection();
 }
 
 //Initialise Menu items
 void CGameManager::InitialiseMenu()
 {
 	//Test 1 - Larange equation
-	Message1->SetLabel("Left Click to set points for a triangle. Press 'T' to clear", "Resources/Fonts/BRLNSR.TTF", vec2(-600.0f, 250.0f), vec3(1.0f, 1.0f, 1.0f), 0.3f);
-	Message2->SetLabel("Right Click to set points for a line. press 'L' to clear", "Resources/Fonts/BRLNSR.TTF", vec2(-600.0f, 200.0f), vec3(1.0f, 1.0f, 1.0f), 0.3f);
+	Message1->SetLabel("Left Click to set points for a triangle. Press 'T' to clear", "Resources/Fonts/BRLNSR.TTF", vec2(-600.0f, 330.0f), vec3(1.0f, 1.0f, 1.0f), 0.4f);
+	Message2->SetLabel("Right Click to set points for a line. press 'L' to clear", "Resources/Fonts/BRLNSR.TTF", vec2(-600.0f, 300.0f), vec3(1.0f, 1.0f, 1.0f), 0.4f);
 }
 
 //keyboard input functions
@@ -125,9 +120,7 @@ void CGameManager::Render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	//switch for game state
-	switch (m_eGameState)
-	{
-	case GameState::MENU:
+	
 
 		Message1->Render();
 		Message2->Render();
@@ -146,11 +139,7 @@ void CGameManager::Render()
 			triangle2->RenderShapes(m_giStaticProgram);
 			triangle3->RenderShapes(m_giStaticProgram);
 		}
-				break;
 
-	default:
-		break;
-	}
 
 
 	glutSwapBuffers();
@@ -166,9 +155,7 @@ void CGameManager::Update()
 	ProcessInput(m_pInput->GetKeyState(), m_pInput->GetMouseState());
 
 //switch for game state
-	switch (m_eGameState)
-	{
-	case GameState::MENU:
+
 		if (triPCount == 3)
 		{
 			triangle->UpdateShapes(m_pInput);
@@ -188,15 +175,7 @@ void CGameManager::Update()
 			triangle2->UpdateShapes(m_pInput);
 			triangle3->UpdateShapes(m_pInput);
 		}
-		break;
-
-	default:
-		break;
-	}
 	
-	//update audio
-	m_pAudioSystem->GetAudioSystem()->update();
-
 	//update game information
 	glutPostRedisplay();
 }
@@ -205,10 +184,7 @@ void CGameManager::Update()
 void CGameManager::ProcessInput(InputState* KeyState, InputState* MouseState)
 {
 								/// *** MAIN MENU INPUT *** ///
-	switch (m_eGameState)
-	{
-	case GameState::MENU:
-
+	
 		//if mouse click counter is 0 (one click at a time)
 		if (m_fcounter == 0.0f)
 		{
@@ -280,19 +256,6 @@ void CGameManager::ProcessInput(InputState* KeyState, InputState* MouseState)
 			//reset counter on mouse up
 			m_fcounter2 = 0.0f;
 		}
-		
-		break;
-
-	default:
-		break;
-	}
-
-}
-
-void CGameManager::CreateTriangles()
-{
-	triangle2 = new CPrefab();
-	triangle3 = new CPrefab();
 }
 
 void CGameManager::CheckCollision()

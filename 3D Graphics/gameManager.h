@@ -64,8 +64,6 @@ public:
 
 	void ProcessInput(InputState* KeyState, InputState* MouseState);
 
-	void CreateTriangles();
-
 	void CheckCollision();
 
 protected:
@@ -76,12 +74,8 @@ protected:
 
 
 	//shader programs
-	GLuint m_giStaticProgram, m_giPlayerProgram, m_giTextProgram;
-	GLuint m_giPhongProgram;
-	GLuint m_giBlinnProgram;
-	GLuint m_giRimProgram;
-	GLuint m_giCubeMapProgram;
-	GLuint m_giReflectCubeMapProgram;
+	GLuint m_giStaticProgram, m_giTextProgram;
+
 
 	CTextLabel* Message1;
 	CTextLabel* Message2;
@@ -105,20 +99,11 @@ protected:
 	vec2 lineP2;
 	
 
-	//Cube Map
-	CCubemap* m_giCubeMap;
-
-	//Game objects
-	CAudio* m_pAudioSystem;
-
 	//Game management objects
 	CInput* m_pInput;
 	CTime* m_pTime;
 	CCamera* m_pOrthoCamera;
-	CCamera* m_pProjCamera;
 
-	//enum
-	GameState m_eGameState;
 
 	//game variables
 	float m_fcounter, m_fcounter2 = 0, triPCount = 0, linePCount = 0;
