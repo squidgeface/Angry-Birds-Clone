@@ -22,6 +22,13 @@ void CGameManager::Update()
 	PlankTexture.loadFromFile("Resources/Textures/plank.png");
 
 	float boxSize = 41.0f;
+	int MousePX;
+	int MousePY;
+	int MouseRX;
+	int MouseRY;
+	bool isFired = false;
+
+	sf::VertexArray lines(sf::LinesStrip, 2);
 
 
 	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
@@ -41,15 +48,33 @@ void CGameManager::Update()
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			
-			int MouseX = Mouse::getPosition(*window).x;
-			int MouseY = Mouse::getPosition(*window).y;
-			
+			if (!isPressed)
+			{
+				isPressed = true;
+				MousePX = Mouse::getPosition(*window).x;
+				MousePY = Mouse::getPosition(*window).y;
+			}
 		}
-		else
+		else if (isPressed)
 		{
+			isPressed = false;
+			MouseRX = Mouse::getPosition(*window).x;
+			MouseRY = Mouse::getPosition(*window).y;
 
+			lines[0].position = sf::Vector2f(MousePX, MousePY);
+			lines[0].color = sf::Color::Red;
+			lines[1].position = sf::Vector2f(MouseRX, MouseRY);
+			lines[1].color = sf::Color::Red;
 		}
+
+		if (isFired)
+		{
+			vec2 forceVec = vec2(MouseRX - MousePX, MouseRY - MousePY);
+			forceVec = normalize(forceVec);
+		}
+
+		
+	
 
 		/** Simulate the world */
 		World.Step(1 / 60.f, 8, 3);
@@ -77,6 +102,8 @@ void CGameManager::Update()
 			Sprites[i]->setRotation(Bodies[i]->GetAngle() * 180 / b2_pi);
 			window->draw(*Sprites[i]);
 		}
+
+		window->draw(lines);
 
 		window->display();
 	}

@@ -70,15 +70,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>Dependencies\SFML\include;Dependencies\box2d\include;$(IncludePath)</IncludePath>
-    <LibraryPath>Dependencies\box2d\lib;Dependencies\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>Dependencies\SFML\include;Dependencies\box2d\include;Dependencies\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>Dependencies\box2d\lib;Dependencies\SFML\lib;Dependencies\glm;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>Dependencies\box2d\include;Dependencies\SFML\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>Dependencies\SFML\include;Dependencies\box2d\include;$(IncludePath)</IncludePath>
-    <LibraryPath>Dependencies\box2d\lib;Dependencies\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>Dependencies\SFML\include;Dependencies\box2d\include;Dependencies\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>Dependencies\box2d\lib;Dependencies\SFML\lib;Dependencies\glm;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

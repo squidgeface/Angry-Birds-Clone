@@ -24,6 +24,9 @@ protected:
 	
 	vector<Sprite*> Sprites;
 	vector<b2Body*> Bodies;
+
+	bool isPressed = false;
 	
+
 };
 
