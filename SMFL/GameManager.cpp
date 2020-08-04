@@ -15,11 +15,10 @@ void CGameManager::Update()
 	CreateGround(World, 400.f, 600.0f);
 
 	Texture GroundTexture;
-	Texture BoxTexture;
-	Texture PlankTexture;
 	GroundTexture.loadFromFile("Resources/Textures/ground.png");
-	BoxTexture.loadFromFile("Resources/Textures/box.png");
-	PlankTexture.loadFromFile("Resources/Textures/plank.png");
+
+	Texture GrumpyBird;
+	GrumpyBird.loadFromFile("Resources/Textures/grumpybird.png");
 
 	float boxSize = 41.0f;
 	int MousePX;
@@ -30,12 +29,16 @@ void CGameManager::Update()
 
 	sf::VertexArray lines(sf::LinesStrip, 2);
 
-
-	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 400, 420, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
-	CreateObject(World, 100, 10, 450, 380, "Resources/Textures/plank.png", 0.1, 10);
+	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
+	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
 	while (window->isOpen())
 	{
@@ -65,12 +68,20 @@ void CGameManager::Update()
 			lines[0].color = sf::Color::Red;
 			lines[1].position = sf::Vector2f(MouseRX, MouseRY);
 			lines[1].color = sf::Color::Red;
+
+			isFired = true;
 		}
 
 		if (isFired)
 		{
 			vec2 forceVec = vec2(MouseRX - MousePX, MouseRY - MousePY);
 			forceVec = normalize(forceVec);
+
+			float distance = Distance(vec2(MousePX, MousePY), vec2(MouseRX, MouseRY));
+
+			forceVec *= distance;
+
+
 		}
 
 		
