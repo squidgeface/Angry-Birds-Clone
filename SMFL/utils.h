@@ -22,4 +22,4 @@ using namespace sf;
 using namespace glm;
 
 const float SCALE = 30.0f;
-
+constexpr auto PI = 3.14159265359;

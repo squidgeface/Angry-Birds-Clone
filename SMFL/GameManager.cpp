@@ -29,7 +29,6 @@ void CGameManager::Update()
 	bool isFired = false;
 	bool reset = true;
 
-	sf::VertexArray lines(sf::LinesStrip, 2);
 	CreateObject(World, 50, 50, 40, 460, "Resources/Textures/grumpybird.png", 0.5f, 0.5f);
 	Bodies[0]->SetEnabled(false);
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
@@ -43,7 +42,13 @@ void CGameManager::Update()
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
-
+	Texture aBox;
+	aBox.loadFromFile("Resources/Textures/arrow.png");
+	sf::Sprite arrow;
+	arrow.setTexture(aBox);
+	arrow.setOrigin(10.0f, 457.0 / 2);
+	arrow.setPosition(40.0f, 460.0f);
+	arrow.scale(0.0f, 0.0f);
 	
 
 	while (window->isOpen())
@@ -63,6 +68,15 @@ void CGameManager::Update()
 				MousePX = Mouse::getPosition(*window).x;
 				MousePY = Mouse::getPosition(*window).y;
 			}
+
+			if (reset)
+			{
+				vec2 forceVec = vec2(Mouse::getPosition(*window).x - MousePX, Mouse::getPosition(*window).y - MousePY);
+				forceVec = normalize(forceVec);
+				arrow.setScale(0.1f, 0.1f);
+				arrow.setRotation(atan2f(forceVec.y, forceVec.x) * 180 / PI - 180.0f);
+				arrow.setScale(Distancev2(vec2(MousePX, MousePY), vec2(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y)) / 1000.0f, 0.1f);
+			}
 		}
 		else if (isPressed)
 		{
@@ -70,15 +84,15 @@ void CGameManager::Update()
 			MouseRX = Mouse::getPosition(*window).x;
 			MouseRY = Mouse::getPosition(*window).y;
 
-			lines[0].position = sf::Vector2f(MousePX, MousePY);
-			lines[0].color = sf::Color::Red;
-			lines[1].position = sf::Vector2f(MouseRX, MouseRY);
-			lines[1].color = sf::Color::Red;
+			arrow.scale(0.0f, 0.0f);
 
 			if (reset)
 				isFired = true;
 
 		}
+		
+			
+		
 
 		if (isFired)
 		{
@@ -133,7 +147,8 @@ void CGameManager::Update()
 			window->draw(*Sprites[i]);
 		}
 
-		window->draw(lines);
+	
+		window->draw(arrow);
 
 		window->display();
 	}

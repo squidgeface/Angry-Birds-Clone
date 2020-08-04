@@ -25,6 +25,23 @@ public:
 	{
 		return sqrtf((_source.x - _target.x) * (_source.x - _target.x) + (_source.y - _target.y) * (_source.y - _target.y));
 	}
+
+	float angleBetween(const vec2 v1, const vec2 v2)
+	{
+		float len1 = sqrt(v1.x * v1.x + v1.y * v1.y);
+		float len2 = sqrt(v2.x * v2.x + v2.y * v2.y);
+
+		float dot = v1.x * v2.x + v1.y * v2.y;
+
+		float a = dot / (len1 * len2);
+
+		if (a >= 1.0)
+			return 0.0 * 180.0f / PI;
+		else if (a <= -1.0)
+			return PI * 180.0f / PI;
+		else
+			return acos(a) * 180.0f / PI; // 0..PI
+	}
 	
 	void UpdatePhysicsShapes();
 
