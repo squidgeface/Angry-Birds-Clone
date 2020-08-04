@@ -15,20 +15,41 @@ void CGameManager::Update()
 	CreateGround(World, 400.f, 600.0f);
 
 	Texture GroundTexture;
-	Texture BoxTexture;
-	Texture PlankTexture;
 	GroundTexture.loadFromFile("Resources/Textures/ground.png");
-	BoxTexture.loadFromFile("Resources/Textures/box.png");
-	PlankTexture.loadFromFile("Resources/Textures/plank.png");
+
+	Texture GrumpyBird;
+	GrumpyBird.loadFromFile("Resources/Textures/grumpybird.png");
+	
 
 	float boxSize = 41.0f;
+	int MousePX;
+	int MousePY;
+	int MouseRX;
+	int MouseRY;
+	bool isFired = false;
+	bool reset = true;
 
+	CreateObject(World, 50, 50, 40, 460, "Resources/Textures/grumpybird.png", 0.5f, 0.5f);
+	Bodies[0]->SetEnabled(false);
+	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
+	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
+	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
-	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 400, 420, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
-	CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
-	CreateObject(World, 100, 10, 450, 380, "Resources/Textures/plank.png", 0.1, 10);
+	Texture aBox;
+	aBox.loadFromFile("Resources/Textures/arrow.png");
+	sf::Sprite arrow;
+	arrow.setTexture(aBox);
+	arrow.setOrigin(10.0f, 457.0 / 2);
+	arrow.setPosition(40.0f, 460.0f);
+	arrow.scale(0.0f, 0.0f);
+	
 
 	while (window->isOpen())
 	{
@@ -41,15 +62,63 @@ void CGameManager::Update()
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			
-			int MouseX = Mouse::getPosition(*window).x;
-			int MouseY = Mouse::getPosition(*window).y;
-			
+			if (!isPressed)
+			{
+				isPressed = true;
+				MousePX = Mouse::getPosition(*window).x;
+				MousePY = Mouse::getPosition(*window).y;
+			}
+
+			if (reset)
+			{
+				vec2 forceVec = vec2(Mouse::getPosition(*window).x - MousePX, Mouse::getPosition(*window).y - MousePY);
+				forceVec = normalize(forceVec);
+				arrow.setScale(0.1f, 0.1f);
+				arrow.setRotation(atan2f(forceVec.y, forceVec.x) * 180 / PI - 180.0f);
+				arrow.setScale(Distancev2(vec2(MousePX, MousePY), vec2(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y)) / 1000.0f, 0.1f);
+			}
 		}
-		else
+		else if (isPressed)
 		{
+			isPressed = false;
+			MouseRX = Mouse::getPosition(*window).x;
+			MouseRY = Mouse::getPosition(*window).y;
+
+			arrow.scale(0.0f, 0.0f);
+
+			if (reset)
+				isFired = true;
 
 		}
+		
+			
+		
+
+		if (isFired)
+		{
+			vec2 forceVec = vec2(MouseRX - MousePX, MouseRY - MousePY);
+			forceVec = normalize(forceVec);
+
+			float distance = Distancev2(vec2(MousePX, MousePY), vec2(MouseRX, MouseRY));
+
+			forceVec *= -distance * 2;
+
+			Bodies[0]->SetEnabled(true);
+			Bodies[0]->ApplyForceToCenter(b2Vec2(forceVec.x, forceVec.y), true);
+
+			isFired = false;
+			reset = false;
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::Q))
+		{
+			Bodies[0]->SetTransform(b2Vec2(40/SCALE, 460/SCALE), 0.0f);
+			Bodies[0]->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+			Bodies[0]->SetAngularVelocity(0.0f);
+			Bodies[0]->SetEnabled(false);
+			reset = true;
+		}
+	
 
 		/** Simulate the world */
 		World.Step(1 / 60.f, 8, 3);
@@ -77,6 +146,9 @@ void CGameManager::Update()
 			Sprites[i]->setRotation(Bodies[i]->GetAngle() * 180 / b2_pi);
 			window->draw(*Sprites[i]);
 		}
+
+	
+		window->draw(arrow);
 
 		window->display();
 	}
