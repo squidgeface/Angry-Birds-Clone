@@ -19,6 +19,7 @@ void CGameManager::Update()
 
 	Texture GrumpyBird;
 	GrumpyBird.loadFromFile("Resources/Textures/grumpybird.png");
+	
 
 	float boxSize = 41.0f;
 	int MousePX;
@@ -26,9 +27,11 @@ void CGameManager::Update()
 	int MouseRX;
 	int MouseRY;
 	bool isFired = false;
+	bool reset = true;
 
 	sf::VertexArray lines(sf::LinesStrip, 2);
-
+	CreateObject(World, 50, 50, 40, 460, "Resources/Textures/grumpybird.png", 0.5f, 0.5f);
+	Bodies[0]->SetEnabled(false);
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
@@ -39,6 +42,9 @@ void CGameManager::Update()
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
+
+
+	
 
 	while (window->isOpen())
 	{
@@ -69,7 +75,9 @@ void CGameManager::Update()
 			lines[1].position = sf::Vector2f(MouseRX, MouseRY);
 			lines[1].color = sf::Color::Red;
 
-			isFired = true;
+			if (reset)
+				isFired = true;
+
 		}
 
 		if (isFired)
@@ -77,14 +85,25 @@ void CGameManager::Update()
 			vec2 forceVec = vec2(MouseRX - MousePX, MouseRY - MousePY);
 			forceVec = normalize(forceVec);
 
-			float distance = Distance(vec2(MousePX, MousePY), vec2(MouseRX, MouseRY));
+			float distance = Distancev2(vec2(MousePX, MousePY), vec2(MouseRX, MouseRY));
 
-			forceVec *= distance;
+			forceVec *= -distance * 2;
 
+			Bodies[0]->SetEnabled(true);
+			Bodies[0]->ApplyForceToCenter(b2Vec2(forceVec.x, forceVec.y), true);
 
+			isFired = false;
+			reset = false;
 		}
 
-		
+		if (Keyboard::isKeyPressed(Keyboard::Q))
+		{
+			Bodies[0]->SetTransform(b2Vec2(40/SCALE, 460/SCALE), 0.0f);
+			Bodies[0]->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+			Bodies[0]->SetAngularVelocity(0.0f);
+			Bodies[0]->SetEnabled(false);
+			reset = true;
+		}
 	
 
 		/** Simulate the world */
