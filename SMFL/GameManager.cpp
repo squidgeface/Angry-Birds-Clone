@@ -26,8 +26,8 @@ void CGameManager::Update()
 
 	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
 	CreateObject(World, boxSize, boxSize, 400, 420, "Resources/Textures/box.png");
-	//CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
-	//CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
+	CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
+	CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
 	CreateObject(World, 100, 10, 450, 380, "Resources/Textures/plank.png", 0.1, 10);
 
 	while (window->isOpen())
