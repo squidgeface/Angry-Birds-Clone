@@ -19,6 +19,12 @@ void CGameManager::Update()
 	GroundTexture.loadFromFile("Resources/Textures/ground.png");
 	BoxTexture.loadFromFile("Resources/Textures/box.png");
 
+	CreateBox(World, 400, 500, 32.0f);
+	CreateBox(World, 400, 500, 32.0f);
+	CreateBox(World, 450, 400, 32.0f);
+	CreateBox(World, 450, 400, 32.0f);
+	CreateBox(World, 425, 300, 32.0f);
+
 	while (window->isOpen())
 	{
 		Event event;
@@ -32,7 +38,7 @@ void CGameManager::Update()
 		{
 			int MouseX = Mouse::getPosition(*window).x;
 			int MouseY = Mouse::getPosition(*window).y;
-			CreateBox(World, MouseX, MouseY);
+			CreateBox(World, MouseX, MouseY, 32.0f);
 		}
 
 		/** Simulate the world */
@@ -62,7 +68,6 @@ void CGameManager::Update()
 			}
 		}
 
-
 		window->display();
 	}
 }
@@ -82,7 +87,7 @@ void CGameManager::CreateGround(b2World& World, float X, float Y)
 	Body->CreateFixture(&FixtureDef); // Apply the fixture definition
 }
 
-void CGameManager::CreateBox(b2World& World, int MouseX, int MouseY)
+void CGameManager::CreateBox(b2World& World, int MouseX, int MouseY, float Size)
 {
 	b2BodyDef BodyDef;
 	BodyDef.position = b2Vec2(MouseX / SCALE, MouseY / SCALE);
@@ -90,7 +95,7 @@ void CGameManager::CreateBox(b2World& World, int MouseX, int MouseY)
 	b2Body* Body = World.CreateBody(&BodyDef);
 
 	b2PolygonShape Shape;
-	Shape.SetAsBox((32.f / 2) / SCALE, (32.f / 2) / SCALE);
+	Shape.SetAsBox((Size / 2) / SCALE, (Size / 2) / SCALE);
 	b2FixtureDef FixtureDef;
 	FixtureDef.density = 1.f;
 	FixtureDef.friction = 0.7f;

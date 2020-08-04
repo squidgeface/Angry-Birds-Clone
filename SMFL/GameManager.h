@@ -11,7 +11,7 @@ public:
 	void Update();
 
 	void CreateGround(b2World& World, float X, float Y);
-	void CreateBox(b2World& World, int MouseX, int MouseY); // Spawns a box at MouseX, MouseY
+	void CreateBox(b2World& World, int MouseX, int MouseY, float Size); // Spawns a box at MouseX, MouseY
 
 	bool GetWindowOpen();
 
