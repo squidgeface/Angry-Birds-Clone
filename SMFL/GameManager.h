@@ -11,13 +11,18 @@ public:
 	void Update();
 
 	void CreateGround(b2World& World, float X, float Y);
-	void CreateBox(b2World& World, int MouseX, int MouseY, float Size); // Spawns a box at MouseX, MouseY
+
+	void CreateObject(b2World& World, float SizeX, float SizeY, float PosX, float PosY, String texPath);
+
+	void UpdatePhysicsShapes();
 
 	bool GetWindowOpen();
 
 protected:
 	RenderWindow* window;
 	
+	vector<Sprite*> Sprites;
+	vector<b2Body*> Bodies;
 	
 };
 

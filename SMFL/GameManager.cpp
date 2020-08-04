@@ -16,14 +16,19 @@ void CGameManager::Update()
 
 	Texture GroundTexture;
 	Texture BoxTexture;
+	Texture PlankTexture;
 	GroundTexture.loadFromFile("Resources/Textures/ground.png");
 	BoxTexture.loadFromFile("Resources/Textures/box.png");
+	PlankTexture.loadFromFile("Resources/Textures/plank.png");
 
-	CreateBox(World, 400, 500, 32.0f);
-	CreateBox(World, 400, 500, 32.0f);
-	CreateBox(World, 450, 400, 32.0f);
-	CreateBox(World, 450, 400, 32.0f);
-	CreateBox(World, 425, 300, 32.0f);
+	float boxSize = 16.0f;
+
+
+	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
+	CreateObject(World, boxSize, boxSize, 400, 420, "Resources/Textures/box.png");
+	//CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
+	//CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
+	CreateObject(World, 32, 16, 410, 400, "Resources/Textures/plank.png");
 
 	while (window->isOpen())
 	{
@@ -36,9 +41,14 @@ void CGameManager::Update()
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
+			
 			int MouseX = Mouse::getPosition(*window).x;
 			int MouseY = Mouse::getPosition(*window).y;
-			CreateBox(World, MouseX, MouseY, 32.0f);
+			
+		}
+		else
+		{
+
 		}
 
 		/** Simulate the world */
@@ -48,16 +58,8 @@ void CGameManager::Update()
 
 		for (b2Body* BodyIterator = World.GetBodyList(); BodyIterator != 0; BodyIterator = BodyIterator->GetNext())
 		{
-			if (BodyIterator->GetType() == b2_dynamicBody)
-			{
-				sf::Sprite Sprite;
-				Sprite.setTexture(BoxTexture);
-				Sprite.setOrigin(16.f, 16.f);
-				Sprite.setPosition(SCALE * BodyIterator->GetPosition().x, SCALE * BodyIterator->GetPosition().y);
-				Sprite.setRotation(BodyIterator->GetAngle() * 180 / b2_pi);
-				window->draw(Sprite);
-			}
-			else
+			
+			if (BodyIterator->GetType() == b2_staticBody)
 			{
 				sf::Sprite GroundSprite;
 				GroundSprite.setTexture(GroundTexture);
@@ -66,6 +68,14 @@ void CGameManager::Update()
 				GroundSprite.setRotation(180 / b2_pi * BodyIterator->GetAngle());
 				window->draw(GroundSprite);
 			}
+			
+		}
+
+		for (size_t i = 0; i < Sprites.size(); i++)
+		{
+			Sprites[i]->setPosition(SCALE * Bodies[i]->GetPosition().x, Bodies[i]->GetPosition().y * SCALE);
+			Sprites[i]->setRotation(Bodies[i]->GetAngle() * 180 / b2_pi);
+			window->draw(*Sprites[i]);
 		}
 
 		window->display();
@@ -87,20 +97,38 @@ void CGameManager::CreateGround(b2World& World, float X, float Y)
 	Body->CreateFixture(&FixtureDef); // Apply the fixture definition
 }
 
-void CGameManager::CreateBox(b2World& World, int MouseX, int MouseY, float Size)
+void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float PosX, float PosY, String texPath)
 {
-	b2BodyDef BodyDef;
-	BodyDef.position = b2Vec2(MouseX / SCALE, MouseY / SCALE);
-	BodyDef.type = b2_dynamicBody;
-	b2Body* Body = World.CreateBody(&BodyDef);
+	Texture* texture = new Texture;
 
-	b2PolygonShape Shape;
-	Shape.SetAsBox((Size / 2) / SCALE, (Size / 2) / SCALE);
-	b2FixtureDef FixtureDef;
-	FixtureDef.density = 1.f;
-	FixtureDef.friction = 0.7f;
-	FixtureDef.shape = &Shape;
-	Body->CreateFixture(&FixtureDef);
+	texture->loadFromFile(texPath);
+	
+	b2BodyDef* BodyDef = new b2BodyDef;
+	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
+	BodyDef->type = b2_dynamicBody;
+	b2Body* Body = World.CreateBody(BodyDef);
+
+	b2PolygonShape* Shape = new b2PolygonShape;
+	Shape->SetAsBox((SizeX /2) / SCALE, (SizeY/2) / SCALE);
+	b2FixtureDef* FixtureDef = new b2FixtureDef;
+	FixtureDef->density = 1.f;
+	FixtureDef->friction = 0.7f;
+	FixtureDef->shape = Shape;
+
+	Body->CreateFixture(FixtureDef);
+
+	sf::Sprite* sprite = new Sprite;
+	sprite->setTexture(*texture);
+	sprite->setOrigin(PosX / SCALE, PosY / SCALE);
+	sprite->setScale(SizeX / SCALE, SizeY / SCALE);
+
+	Bodies.push_back(Body);
+	Sprites.push_back(sprite);
+}
+
+void CGameManager::UpdatePhysicsShapes()
+{
+
 }
 
 bool CGameManager::GetWindowOpen()
