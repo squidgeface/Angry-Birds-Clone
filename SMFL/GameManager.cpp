@@ -12,7 +12,7 @@ void CGameManager::Update()
 	b2Vec2 Gravity(0.f, 9.8f);
 	b2World World(Gravity);
 
-	CreateGround(World, 400.f, 550.f);
+	CreateGround(World, 400.f, 600.0f);
 
 	Texture GroundTexture;
 	Texture BoxTexture;
@@ -21,14 +21,14 @@ void CGameManager::Update()
 	BoxTexture.loadFromFile("Resources/Textures/box.png");
 	PlankTexture.loadFromFile("Resources/Textures/plank.png");
 
-	float boxSize = 16.0f;
+	float boxSize = 41.0f;
 
 
 	CreateObject(World, boxSize, boxSize, 400, 450, "Resources/Textures/box.png");
 	CreateObject(World, boxSize, boxSize, 400, 420, "Resources/Textures/box.png");
 	//CreateObject(World, boxSize, boxSize, 430, 450, "Resources/Textures/box.png");
 	//CreateObject(World, boxSize, boxSize, 430, 420, "Resources/Textures/box.png");
-	CreateObject(World, 32, 16, 410, 400, "Resources/Textures/plank.png");
+	CreateObject(World, 100, 10, 450, 380, "Resources/Textures/plank.png", 0.1, 10);
 
 	while (window->isOpen())
 	{
@@ -63,7 +63,7 @@ void CGameManager::Update()
 			{
 				sf::Sprite GroundSprite;
 				GroundSprite.setTexture(GroundTexture);
-				GroundSprite.setOrigin(400.f, 8.f);
+				GroundSprite.setOrigin(993.0 / 2, 44.0f /2);
 				GroundSprite.setPosition(BodyIterator->GetPosition().x * SCALE, BodyIterator->GetPosition().y * SCALE);
 				GroundSprite.setRotation(180 / b2_pi * BodyIterator->GetAngle());
 				window->draw(GroundSprite);
@@ -85,19 +85,19 @@ void CGameManager::Update()
 void CGameManager::CreateGround(b2World& World, float X, float Y)
 {
 	b2BodyDef BodyDef;
-	BodyDef.position = b2Vec2(X / 30.f, Y / 30.f);
+	BodyDef.position = b2Vec2(X / SCALE, Y / SCALE);
 	BodyDef.type = b2_staticBody;
 	b2Body* Body = World.CreateBody(&BodyDef);
 
 	b2PolygonShape Shape;
-	Shape.SetAsBox((800.f / 2) / SCALE, (16.f / 2) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
+	Shape.SetAsBox((993.0f / 2) / SCALE, (44.0f / 2) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
 	b2FixtureDef FixtureDef;
 	FixtureDef.density = 0.f;  // Sets the density of the body
 	FixtureDef.shape = &Shape; // Sets the shape
 	Body->CreateFixture(&FixtureDef); // Apply the fixture definition
 }
 
-void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float PosX, float PosY, String texPath)
+void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY)
 {
 	Texture* texture = new Texture;
 
@@ -109,7 +109,7 @@ void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float 
 	b2Body* Body = World.CreateBody(BodyDef);
 
 	b2PolygonShape* Shape = new b2PolygonShape;
-	Shape->SetAsBox((SizeX /2) / SCALE, (SizeY/2) / SCALE);
+	Shape->SetAsBox(((SizeX /2) * _scaleX) / SCALE, ((SizeY/2) * _scaleY) / SCALE);
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
@@ -119,8 +119,8 @@ void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float 
 
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
-	sprite->setOrigin(PosX / SCALE, PosY / SCALE);
-	sprite->setScale(SizeX / SCALE, SizeY / SCALE);
+	sprite->setOrigin(SizeX / 2, SizeY / 2);
+	sprite->setScale(_scaleX, _scaleY);
 
 	Bodies.push_back(Body);
 	Sprites.push_back(sprite);
