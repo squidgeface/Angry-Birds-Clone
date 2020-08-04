@@ -263,15 +263,3 @@ __pycache__/
 .vscode/
 /bin
 
-# ignore stuff from SFML.Net
-
-obj/
-lib/
-examples/*/*.dll
-examples/*/*.xml
-*.exe
-*.manifest
-*.pdb
-*.suo
-*.csproj.user
-*.VC.db
