@@ -54,7 +54,6 @@ protected:
 	vector<b2Body*> Bodies;
 
 	bool isPressed = false;
-	
 
 };
 

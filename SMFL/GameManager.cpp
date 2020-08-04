@@ -19,7 +19,6 @@ void CGameManager::Update()
 
 	Texture GrumpyBird;
 	GrumpyBird.loadFromFile("Resources/Textures/grumpybird.png");
-	
 
 	float boxSize = 41.0f;
 	int MousePX;
@@ -35,11 +34,13 @@ void CGameManager::Update()
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
+	//5
 	CreateObject(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
+	//10
 	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
 	Texture aBox;
@@ -88,8 +89,12 @@ void CGameManager::Update()
 
 			if (reset)
 				isFired = true;
-
 		}
+
+		/*if (Bodies[0]->GetFixtureList() == Bodies[6]->GetFixtureList() || Bodies[0]->GetFixtureList() == Bodies[6]->GetFixtureList())
+		{
+			isFired = true;
+		}*/
 		
 			
 		
