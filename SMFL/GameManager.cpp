@@ -2,7 +2,7 @@
 
 void CGameManager::InitialiseWindow()
 {
-	window = new RenderWindow(VideoMode(800, 600, 32), "SFML works!");
+	window = new RenderWindow(VideoMode(800, 600, 32), "Grumpy Birds");
 	window->setFramerateLimit(60);
 }
 
@@ -34,18 +34,22 @@ void CGameManager::Update()
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
-	//5
+
+	//plank #5
 	CreateObject(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
+
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
-	//10
+
+	//plank #10
 	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
+	//Arrow sprite
 	Texture aBox;
 	aBox.loadFromFile("Resources/Textures/arrow.png");
-	sf::Sprite arrow;
+	Sprite arrow;
 	arrow.setTexture(aBox);
 	arrow.setOrigin(10.0f, 457.0 / 2);
 	arrow.setPosition(40.0f, 460.0f);
@@ -75,7 +79,7 @@ void CGameManager::Update()
 				vec2 forceVec = vec2(Mouse::getPosition(*window).x - MousePX, Mouse::getPosition(*window).y - MousePY);
 				forceVec = normalize(forceVec);
 				arrow.setScale(0.1f, 0.1f);
-				arrow.setRotation(atan2f(forceVec.y, forceVec.x) * 180 / PI - 180.0f);
+				arrow.setRotation(atan2f(forceVec.y, forceVec.x) * (180.0f / float(PI)) - 180.0f);
 				arrow.setScale(Distancev2(vec2(MousePX, MousePY), vec2(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y)) / 1000.0f, 0.1f);
 			}
 		}

@@ -40,7 +40,7 @@ public:
 		else if (a <= -1.0)
 			return PI * 180.0f / PI;
 		else
-			return acos(a) * 180.0f / PI; // 0..PI
+			return float(acos(a) * 180.0f / PI); // 0..PI
 	}
 	
 	void UpdatePhysicsShapes();
