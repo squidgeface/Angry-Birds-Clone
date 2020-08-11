@@ -6,11 +6,18 @@ void CGameManager::InitialiseWindow()
 	window->setFramerateLimit(60);
 }
 
+void CGameManager::InitialiseWorld()
+{
+	Gravity = new b2Vec2(0.f, 9.8f);
+	World = new b2World(*Gravity);
+	m_pContactListener = new b2ContactListener;
+	World->SetContactListener(m_pContactListener);
+}
+
 
 void CGameManager::Update()
 {
-	b2Vec2 Gravity(0.f, 9.8f);
-	b2World World(Gravity);
+	
 
 	CreateGround(World, 400.f, 600.0f);
 
@@ -27,24 +34,23 @@ void CGameManager::Update()
 	int MouseRY;
 	bool isFired = false;
 	bool reset = true;
+	bool overlap = false;
 
-	CreateObject(World, 50, 50, 40, 460, "Resources/Textures/grumpybird.png", 0.5f, 0.5f);
-	Bodies[0]->SetEnabled(false);
+	CreateBird();
+	BirdBody->SetEnabled(false);
+
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 560, "Resources/Textures/box.png", 0.5f, 0.5f);
-
-	//plank #5
-	CreateObject(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
-
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 400, 500, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 480, 480, "Resources/Textures/box.png", 0.5f, 0.5f);
-
-	//plank #10
-	CreateObject(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
+	
+	//planks
+	CreateDestructable(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
+	CreateDestructable(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
 
 	//Arrow sprite
 	Texture aBox;
@@ -54,10 +60,24 @@ void CGameManager::Update()
 	arrow.setOrigin(10.0f, 457.0 / 2);
 	arrow.setPosition(40.0f, 460.0f);
 	arrow.scale(0.0f, 0.0f);
-	
 
 	while (window->isOpen())
 	{
+		
+		for (size_t i = 0; i < DestBodies.size(); i++)
+		{
+			if (World->GetContactList() != NULL)
+			{
+				if (BeginContact(World->GetContactList(), DestBodies[i]))
+				{
+					World->DestroyBody(DestBodies[i]);
+					DestBodies.erase(DestBodies.begin() + i);
+					DestSprites.erase(DestSprites.begin() + i);
+				}
+			}
+			
+		}
+
 		Event event;
 		while (window->pollEvent(event))
 		{
@@ -95,10 +115,11 @@ void CGameManager::Update()
 				isFired = true;
 		}
 
-		/*if (Bodies[0]->GetFixtureList() == Bodies[6]->GetFixtureList() || Bodies[0]->GetFixtureList() == Bodies[6]->GetFixtureList())
+		/*if (BirdBody->GetFixtureList() == Bodies[6]->GetFixtureList() || BirdBody->GetFixtureList() == Bodies[6]->GetFixtureList())
 		{
 			isFired = true;
 		}*/
+		
 		
 			
 		
@@ -112,8 +133,8 @@ void CGameManager::Update()
 
 			forceVec *= -distance * 2;
 
-			Bodies[0]->SetEnabled(true);
-			Bodies[0]->ApplyForceToCenter(b2Vec2(forceVec.x, forceVec.y), true);
+			BirdBody->SetEnabled(true);
+			BirdBody->ApplyForceToCenter(b2Vec2(forceVec.x, forceVec.y), true);
 
 			isFired = false;
 			reset = false;
@@ -121,20 +142,20 @@ void CGameManager::Update()
 
 		if (Keyboard::isKeyPressed(Keyboard::Q))
 		{
-			Bodies[0]->SetTransform(b2Vec2(40/SCALE, 460/SCALE), 0.0f);
-			Bodies[0]->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-			Bodies[0]->SetAngularVelocity(0.0f);
-			Bodies[0]->SetEnabled(false);
+			BirdBody->SetTransform(b2Vec2(40/SCALE, 460/SCALE), 0.0f);
+			BirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+			BirdBody->SetAngularVelocity(0.0f);
+			BirdBody->SetEnabled(false);
 			reset = true;
 		}
 	
 
 		/** Simulate the world */
-		World.Step(1 / 60.f, 8, 3);
+		World->Step(1 / 60.f, 8, 3);
 
 		window->clear(Color::White);
 
-		for (b2Body* BodyIterator = World.GetBodyList(); BodyIterator != 0; BodyIterator = BodyIterator->GetNext())
+		for (b2Body* BodyIterator = World->GetBodyList(); BodyIterator != 0; BodyIterator = BodyIterator->GetNext())
 		{
 			
 			if (BodyIterator->GetType() == b2_staticBody)
@@ -155,20 +176,32 @@ void CGameManager::Update()
 			Sprites[i]->setRotation(Bodies[i]->GetAngle() * 180 / b2_pi);
 			window->draw(*Sprites[i]);
 		}
+		
+		for (size_t i = 0; i < DestSprites.size(); i++)
+		{
+			DestSprites[i]->setPosition(SCALE * DestBodies[i]->GetPosition().x, DestBodies[i]->GetPosition().y * SCALE);
+			DestSprites[i]->setRotation(DestBodies[i]->GetAngle() * 180 / b2_pi);
+			window->draw(*DestSprites[i]);
+		}
 
+		BirdSprite->setPosition(SCALE* BirdBody->GetPosition().x, BirdBody->GetPosition().y* SCALE);
+		BirdSprite->setRotation(BirdBody->GetAngle() * 180 / b2_pi);
+		window->draw(*BirdSprite);
 	
 		window->draw(arrow);
 
 		window->display();
+
+			
 	}
 }
 
-void CGameManager::CreateGround(b2World& World, float X, float Y)
+void CGameManager::CreateGround(b2World* World, float X, float Y)
 {
 	b2BodyDef BodyDef;
 	BodyDef.position = b2Vec2(X / SCALE, Y / SCALE);
 	BodyDef.type = b2_staticBody;
-	b2Body* Body = World.CreateBody(&BodyDef);
+	b2Body* Body = World->CreateBody(&BodyDef);
 
 	b2PolygonShape Shape;
 	Shape.SetAsBox((993.0f / 2) / SCALE, (44.0f / 2) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
@@ -178,7 +211,7 @@ void CGameManager::CreateGround(b2World& World, float X, float Y)
 	Body->CreateFixture(&FixtureDef); // Apply the fixture definition
 }
 
-void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY)
+void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY)
 {
 	Texture* texture = new Texture;
 
@@ -187,7 +220,7 @@ void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float 
 	b2BodyDef* BodyDef = new b2BodyDef;
 	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
 	BodyDef->type = b2_dynamicBody;
-	b2Body* Body = World.CreateBody(BodyDef);
+	b2Body* Body = World->CreateBody(BodyDef);
 
 	b2PolygonShape* Shape = new b2PolygonShape;
 	Shape->SetAsBox(((SizeX /2) * _scaleX) / SCALE, ((SizeY/2) * _scaleY) / SCALE);
@@ -207,12 +240,99 @@ void CGameManager::CreateObject(b2World& World, float SizeX, float SizeY, float 
 	Sprites.push_back(sprite);
 }
 
-void CGameManager::UpdatePhysicsShapes()
+void CGameManager::CreateBird()
 {
+	Texture* texture = new Texture;
 
+	texture->loadFromFile("Resources/Textures/grumpybird.png");
+
+	b2BodyDef* BodyDef = new b2BodyDef;
+	BodyDef->position = b2Vec2(40 / SCALE, 460 / SCALE);
+	BodyDef->type = b2_dynamicBody;
+	b2Body* Body = World->CreateBody(BodyDef);
+
+	b2PolygonShape* Shape = new b2PolygonShape;
+	Shape->SetAsBox((50 / 4) / SCALE, (50 / 4) / SCALE);
+	b2FixtureDef* FixtureDef = new b2FixtureDef;
+	FixtureDef->density = 1.f;
+	FixtureDef->friction = 0.7f;
+	FixtureDef->shape = Shape;
+
+	Body->CreateFixture(FixtureDef);
+
+	sf::Sprite* sprite = new Sprite;
+	sprite->setTexture(*texture);
+	sprite->setOrigin(25, 25);
+	sprite->setScale(0.5, 0.5);
+
+	BirdSprite = sprite;
+	BirdBody = Body;
 }
+
+void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY)
+{
+	Texture* texture = new Texture;
+
+	texture->loadFromFile(texPath);
+
+	b2BodyDef* BodyDef = new b2BodyDef;
+	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
+	BodyDef->type = b2_dynamicBody;
+	b2Body* Body = World->CreateBody(BodyDef);
+
+	
+
+	b2PolygonShape* Shape = new b2PolygonShape;
+	Shape->SetAsBox(((SizeX / 2) * _scaleX) / SCALE, ((SizeY / 2) * _scaleY) / SCALE);
+	b2FixtureDef* FixtureDef = new b2FixtureDef;
+	FixtureDef->density = 1.f;
+	FixtureDef->friction = 0.7f;
+	FixtureDef->shape = Shape;
+
+	string* name = new string("Platform");
+
+	Body->CreateFixture(FixtureDef)->SetUserData(name);
+
+	sf::Sprite* sprite = new Sprite;
+	sprite->setTexture(*texture);
+	sprite->setOrigin(SizeX / 2, SizeY / 2);
+	sprite->setScale(_scaleX, _scaleY);
+
+	DestBodies.push_back(Body);
+	DestSprites.push_back(sprite);
+	
+}
+
 
 bool CGameManager::GetWindowOpen()
 {
 	return window->isOpen();
 }
+
+bool CGameManager::BeginContact(b2Contact* contact, b2Body* platform)
+{
+		if (contact->GetFixtureA()->GetBody() == BirdBody && contact->GetFixtureB()->GetBody() == platform
+			|| contact->GetFixtureA()->GetBody() == platform && contact->GetFixtureB()->GetBody() == BirdBody)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+}
+
+
+
+	
+
+void  CGameManager::EndContact(b2Contact* contact)
+{
+	
+}
+
+	void preSolve(b2Contact* contact, b2Manifold oldManifold) {
+	}
+
+	void postSolve(b2Contact* contact, b2ContactImpulse impulse) {
+	}
