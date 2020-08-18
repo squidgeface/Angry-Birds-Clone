@@ -174,7 +174,6 @@ void CGameManager::Update()
 
 		for (b2Body* BodyIterator = World->GetBodyList(); BodyIterator != 0; BodyIterator = BodyIterator->GetNext())
 		{
-			
 			if (BodyIterator->GetType() == b2_staticBody)
 			{
 				sf::Sprite GroundSprite;
@@ -184,7 +183,6 @@ void CGameManager::Update()
 				GroundSprite.setRotation(180 / b2_pi * BodyIterator->GetAngle());
 				window->draw(GroundSprite);
 			}
-			
 		}
 
 		for (size_t i = 0; i < Sprites.size(); i++)
@@ -244,7 +242,6 @@ void CGameManager::CreateGround(b2World* World, float X, float Y)
 	BodyDef.position = b2Vec2(X / SCALE, Y / SCALE);
 	BodyDef.type = b2_staticBody;
 	b2Body* Body = World->CreateBody(&BodyDef);
-
 	b2PolygonShape Shape;
 	Shape.SetAsBox((utils::HSWidth) / SCALE, (25.0f) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
 	b2FixtureDef FixtureDef;
@@ -256,14 +253,11 @@ void CGameManager::CreateGround(b2World* World, float X, float Y)
 void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, BShape _shape, float _scaleX, float _scaleY, b2BodyType _bodyType)
 {
 	Texture* texture = new Texture;
-
 	texture->loadFromFile(texPath);
-	
 	b2BodyDef* BodyDef = new b2BodyDef;
 	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
 	BodyDef->type = _bodyType;
 	b2Body* Body = World->CreateBody(BodyDef);
-
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
@@ -282,12 +276,10 @@ void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float 
 	}
 
 	Body->CreateFixture(FixtureDef);
-
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
 	sprite->setOrigin(SizeX / 2, SizeY / 2);
 	sprite->setScale(_scaleX, _scaleY);
-
 	Bodies.push_back(Body);
 	Sprites.push_back(sprite);
 }
@@ -295,28 +287,22 @@ void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float 
 void CGameManager::CreateBird()
 {
 	Texture* texture = new Texture;
-
 	texture->loadFromFile("Resources/Textures/grumpybird.png");
-
 	b2BodyDef* BodyDef = new b2BodyDef;
 	BodyDef->position = b2Vec2(40 / SCALE, 460 / SCALE);
 	BodyDef->type = b2_dynamicBody;
 	b2Body* Body = World->CreateBody(BodyDef);
-
 	b2CircleShape* Shape = new b2CircleShape;
 	Shape->m_radius = (50 / 4) / SCALE;
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
 	FixtureDef->shape = Shape;
-
 	Body->CreateFixture(FixtureDef);
-
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
 	sprite->setOrigin(25, 25);
 	sprite->setScale(0.5, 0.5);
-
 	BirdSprite = sprite;
 	BirdBody = Body;
 }
@@ -324,9 +310,7 @@ void CGameManager::CreateBird()
 void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape)
 {
 	Texture* texture = new Texture;
-
 	texture->loadFromFile(texPath);
-
 	b2BodyDef* BodyDef = new b2BodyDef;
 	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
 	BodyDef->type = b2_dynamicBody;
@@ -349,12 +333,8 @@ void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, 
 	
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
-	
-
 	string* name = new string("Platform");
-
 	Body->CreateFixture(FixtureDef)->SetUserData(name);
-
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
 	sprite->setOrigin(SizeX / 2, SizeY / 2);
