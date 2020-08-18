@@ -18,7 +18,7 @@ public:
 
 	void CreateBird();
 
-	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f);
+	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f,BShape _shape = BShape::BOX);
 
 
 

@@ -21,7 +21,7 @@ void CGameManager::Update()
 	CreateGround(World, 400.f, 600.0f);
 
 	//create ceiling and joint objects
-	CreateObject(World, utils::ScreenWidth, 15.0f, 400, 20, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2_staticBody);
+	CreateObject(World, utils::ScreenWidth, 25.0f, 400, 20, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2_staticBody);
 	CreateObject(World, 100, 10, 100, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x, Bodies[0]->GetPosition().y + 1.0f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f/SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
 	CreateObject(World, 100, 10, 100, 100, "Resources/Textures/plank.png", BShape::BOX);
@@ -46,6 +46,7 @@ void CGameManager::Update()
 	//Create Grumpy Bird
 	CreateBird();
 	BirdBody->SetEnabled(false);
+	BirdBody->SetSleepingAllowed(false);
 
 	//Create All platforms and obstacles
 	CreateObject(World, boxSize, boxSize, 400, 580, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
@@ -60,6 +61,11 @@ void CGameManager::Update()
 	//Destructable planks
 	CreateDestructable(World, 100, 10, 440, 520, "Resources/Textures/plank.png");
 	CreateDestructable(World, 100, 10, 440, 460, "Resources/Textures/plank.png");
+
+	//Destructable enemy
+	CreateDestructable(World, 50, 50, 440, 500, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateDestructable(World, 50, 50, 440, 440, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateDestructable(World, 50, 50, 440, 540, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 
 	//Arrow sprite
 	Texture aBox;
@@ -76,15 +82,24 @@ void CGameManager::Update()
 		//Check for player and destructable object collision
 		for (size_t i = 0; i < DestBodies.size(); i++)
 		{
-			if (World->GetContactList() != NULL)
+			if (World->GetContactList() != NULL && BirdBody->GetContactList() != NULL && DestBodies[i]->GetContactList() != NULL)
 			{
+				if (BirdBody->GetContactList()->contact->GetFixtureA()->GetBody() == DestBodies[i] && BirdBody->GetContactList()->contact->IsTouching() || DestBodies[i]->GetContactList()->contact->GetFixtureA()->GetBody() == BirdBody && DestBodies[i]->GetContactList()->contact->IsTouching())
+				{
+					World->DestroyBody(DestBodies[i]);
+					DestBodies.erase(DestBodies.begin() + i);
+					DestSprites.erase(DestSprites.begin() + i);
+					break;
+				}
+				//World->GetContactList()->GetFixtureA()->GetBody()->GetContactList()
 				if (BeginContact(World->GetContactList(), DestBodies[i]))
 				{
 					World->DestroyBody(DestBodies[i]);
 					DestBodies.erase(DestBodies.begin() + i);
 					DestSprites.erase(DestSprites.begin() + i);
+					break;
 				}
-			}	
+			}
 		}
 
 		Event event;
@@ -189,13 +204,37 @@ void CGameManager::Update()
 		BirdSprite->setPosition(SCALE* BirdBody->GetPosition().x, BirdBody->GetPosition().y* SCALE);
 		BirdSprite->setRotation(BirdBody->GetAngle() * 180 / b2_pi);
 		window->draw(*BirdSprite);
+		if (BirdBody->GetLinearVelocity().x > 20.0f)
+		{
+			BirdBody->SetLinearVelocity(b2Vec2(20.0f, BirdBody->GetLinearVelocity().y));
+		}
 	
 		window->draw(arrow);
 
 		window->display();
 
-		World->DebugDraw();
-		World->ClearForces();
+		//Check for player and destructable object collision
+		for (size_t i = 0; i < DestBodies.size(); i++)
+		{
+			if (World->GetContactList() != NULL && BirdBody->GetContactList() != NULL && DestBodies[i]->GetContactList() != NULL)
+			{
+				if (BirdBody->GetContactList()->contact->GetFixtureA()->GetBody() == DestBodies[i] && BirdBody->GetContactList()->contact->IsTouching() || DestBodies[i]->GetContactList()->contact->GetFixtureA()->GetBody() == BirdBody && DestBodies[i]->GetContactList()->contact->IsTouching())
+				{
+					World->DestroyBody(DestBodies[i]);
+					DestBodies.erase(DestBodies.begin() + i);
+					DestSprites.erase(DestSprites.begin() + i);
+					break;
+				}
+				//World->GetContactList()->GetFixtureA()->GetBody()->GetContactList()
+				if (BeginContact(World->GetContactList(), DestBodies[i]))
+				{
+					World->DestroyBody(DestBodies[i]);
+					DestBodies.erase(DestBodies.begin() + i);
+					DestSprites.erase(DestSprites.begin() + i);
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -207,7 +246,7 @@ void CGameManager::CreateGround(b2World* World, float X, float Y)
 	b2Body* Body = World->CreateBody(&BodyDef);
 
 	b2PolygonShape Shape;
-	Shape.SetAsBox((993.0f / 2) / SCALE, (44.0f / 2) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
+	Shape.SetAsBox((utils::HSWidth) / SCALE, (25.0f) / SCALE); // Creates a box shape. Divide your desired width and height by 2.
 	b2FixtureDef FixtureDef;
 	FixtureDef.density = 0.f;  // Sets the density of the body
 	FixtureDef.shape = &Shape; // Sets the shape
@@ -282,7 +321,7 @@ void CGameManager::CreateBird()
 	BirdBody = Body;
 }
 
-void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY)
+void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape)
 {
 	Texture* texture = new Texture;
 
@@ -292,15 +331,25 @@ void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, 
 	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
 	BodyDef->type = b2_dynamicBody;
 	b2Body* Body = World->CreateBody(BodyDef);
-
-	
-
-	b2PolygonShape* Shape = new b2PolygonShape;
-	Shape->SetAsBox(((SizeX / 2) * _scaleX) / SCALE, ((SizeY / 2) * _scaleY) / SCALE);
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
+
+	if (_shape == BShape::BOX)
+	{
+		b2PolygonShape* Shape = new b2PolygonShape;
+		Shape->SetAsBox(((SizeX / 2) * _scaleX) / SCALE, ((SizeY / 2) * _scaleY) / SCALE);
+		FixtureDef->shape = Shape;
+	}
+	else 	if (_shape == BShape::CIRCLE)
+	{
+		b2CircleShape* Shape = new b2CircleShape;
+		Shape->m_radius = SizeX / 2 * _scaleX / SCALE;
+		FixtureDef->shape = Shape;
+	}
+	
+	
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
-	FixtureDef->shape = Shape;
+	
 
 	string* name = new string("Platform");
 
@@ -324,8 +373,8 @@ bool CGameManager::GetWindowOpen()
 
 bool CGameManager::BeginContact(b2Contact* contact, b2Body* platform)
 {
-		if (contact->GetFixtureA()->GetBody() == BirdBody && contact->GetFixtureB()->GetBody() == platform
-			|| contact->GetFixtureA()->GetBody() == platform && contact->GetFixtureB()->GetBody() == BirdBody)
+		if ((contact->GetFixtureA()->GetBody() == BirdBody && contact->GetFixtureB()->GetBody() == platform && contact->IsTouching())
+			|| (contact->GetFixtureA()->GetBody() == platform && contact->GetFixtureB()->GetBody() == BirdBody && contact->IsTouching()))
 		{
 			return true;
 		}
