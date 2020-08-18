@@ -14,7 +14,7 @@ public:
 
 	void CreateGround(b2World* World, float X, float Y);
 
-	void CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f);
+	void CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, BShape _shape, float _scaleX = 1.0f, float _scaleY = 1.0f, b2BodyType _bodyType = b2_dynamicBody);
 
 	void CreateBird();
 
@@ -56,7 +56,8 @@ public:
 
 	bool BeginContact(b2Contact* contact, b2Body* platform);
 
-	void EndContact(b2Contact* contact);
+	void JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint);
+
 
 protected:
 	RenderWindow* window;
@@ -67,6 +68,8 @@ protected:
 	vector<b2Body*> Bodies;
 	vector<Sprite*> DestSprites;
 	vector<b2Body*> DestBodies;
+	vector<Sprite*> jointSprites;
+	vector<b2Body*> jointBodies;
 
 	b2Vec2* Gravity;
 	b2World* World;

@@ -23,3 +23,24 @@ using namespace glm;
 
 const float SCALE = 30.0f;
 constexpr auto PI = 3.14159265359;
+
+namespace utils
+{
+	const float ScreenHeight = 600.0f;
+	const float ScreenWidth = 800.0f;
+	const float HSHeight = ScreenHeight/2.0f;
+	const float HSWidth = ScreenWidth/2.0f;
+}
+
+enum class BShape
+{
+	BOX,
+	CIRCLE,
+	TRIANGLE,
+};
+
+enum class BJoint
+{
+	DIST,
+	REVO,
+};
