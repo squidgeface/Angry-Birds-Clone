@@ -59,6 +59,7 @@ enum class BJoint
 {
 	DIST,
 	REVO,
+	PULLY,
 };
 
 enum class GameState

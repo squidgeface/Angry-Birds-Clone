@@ -35,9 +35,11 @@ public:
 
 	void CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, BShape _shape, float _scaleX = 1.0f, float _scaleY = 1.0f, b2BodyType _bodyType = b2BodyType::b2_dynamicBody);
 	void CreateBird();
+	void CreateBird2();
+	void CreateBird3();
 	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f,BShape _shape = BShape::BOX);
 	void CreateEnemy(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape);
-	void JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint);
+	void JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint, b2Vec2 _wAnchor1 = b2Vec2(), b2Vec2 _wAnchor2 = b2Vec2());
 
 
 	//math for the distance between two vectors
@@ -89,5 +91,7 @@ protected:
 	bool IsFired = false;
 	bool Reset = true;
 	GameState InGame = GameState::MENU;
+	int BirdCount = 0;
+	int BirdsUsed[3];
 };
 

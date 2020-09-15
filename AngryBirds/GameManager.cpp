@@ -58,6 +58,9 @@ void CGameManager::InitiliaseLevel1()
 	Reset = true;
 	InGame = GameState::GAME;
 	EnemySize = 0;
+	BirdsUsed[0] = 0;
+	BirdsUsed[1] = 0;
+	BirdsUsed[2] = 0;
 	//Initialise pointers
 	Arrow = new Sprite;
 	SlingSprite = new Sprite;
@@ -76,12 +79,20 @@ void CGameManager::InitiliaseLevel1()
 
 	//create ceiling and joint objects
 	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
-	CreateObject(World, 100, 10, 100, 100, "Resources/Textures/plank.png", BShape::BOX);
-	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
-	CreateObject(World, 100, 10, 100, 100, "Resources/Textures/plank.png", BShape::BOX);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 250 / SCALE, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x + 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(Bodies[2]->GetPosition().x - 25.0f / SCALE, Bodies[2]->GetPosition().y), BJoint::REVO);
-	CreateObject(World, 100, 10, 100, 100, "Resources/Textures/plank.png", BShape::BOX);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x - 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(), BJoint::REVO);
+
+	CreateObject(World, 100, 10, 400, 400, "Resources/Textures/plank.png", BShape::BOX);
+	CreateObject(World, 1, 250, 600, 500, "Resources/Textures/gate.png", BShape::BOX);
+	JoinObjects(Bodies[4], Bodies[5], b2Vec2(Bodies[4]->GetPosition().x, Bodies[4]->GetPosition().y), b2Vec2(Bodies[5]->GetPosition().x, Bodies[4]->GetPosition().y), BJoint::PULLY, b2Vec2(utils::HSWidth - 200, 0.0f), b2Vec2(utils::HSWidth + 200, 0.0f));
+	Bodies[4]->SetFixedRotation(true);
+	Bodies[5]->SetFixedRotation(true);
+	Bodies[4]->SetGravityScale(0.5f);
+
 
 	//create ground
 	CreateObject(World, utils::ScreenWidth, 25.0f, utils::HSWidth, utils::ScreenHeight, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
@@ -97,29 +108,30 @@ void CGameManager::InitiliaseLevel1()
 	SlingSprite->setTexture(*Sling);
 	SlingSprite->setPosition(150.0f, 430.0f);
 
-	//Create Grumpy Bird
+	//Create Grumpy Birds
 	CreateBird();
 	BirdBody->SetEnabled(false);
 	BirdBody->SetSleepingAllowed(false);
 
 	//Create All platforms and obstacles
 	float boxSize = 50.0f;
-	CreateObject(World, boxSize, boxSize, 700, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 700, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 700, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 780, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 700, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 700, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 700, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 780, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 
 	//Destructable planks
 	CreateDestructable(World, 100, 10, 740, 500, "Resources/Textures/plank.png");
-	CreateDestructable(World, 100, 10, 740, 440, "Resources/Textures/plank.png");
+	CreateDestructable(World, 100, 10, 740, 430, "Resources/Textures/plank.png");
+	CreateDestructable(World, 100, 10, 740, 570, "Resources/Textures/plank.png");
 
 	//Destructable enemy
 	CreateEnemy(World, 50, 50, 740, 500, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
-	CreateEnemy(World, 50, 50, 740, 440, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateEnemy(World, 50, 50, 740, 400, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 	CreateEnemy(World, 50, 50, 740, 540, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 
 	//Arrow sprite
@@ -137,6 +149,8 @@ void CGameManager::ClearLevel1()
 	Arrow = 0;
 	SlingSprite = 0;
 	BackgroundSprite = 0;
+	BirdBody = 0;
+	BirdSprite = 0;
 
 	while (Sprites.size() > 0)
 	{
@@ -232,16 +246,51 @@ void CGameManager::Update()
 				InitiliaseLevel1();
 				Reset = true;
 			}
-
-			//Reset the bird by pressing 'E'
-			if (Keyboard::isKeyPressed(Keyboard::E))
+			
+			if (Keyboard::isKeyPressed(Keyboard::Num1) && BirdsUsed[0] == 0)
 			{
-				//set to disabled and reset to origin position
+				//Clear and reset entire level
+				CreateBird();
 				BirdBody->SetEnabled(false);
-				BirdBody->SetTransform(b2Vec2(200 / SCALE, 460 / SCALE), 0.0f);
-				BirdBody->SetAngularVelocity(0.0f);
+				BirdBody->SetSleepingAllowed(false);
 				Reset = true;
 			}
+			if (Keyboard::isKeyPressed(Keyboard::Num2) && BirdsUsed[1] == 0)
+			{
+				//Clear and reset entire level
+				CreateBird2();
+				BirdBody->SetEnabled(false);
+				BirdBody->SetSleepingAllowed(false);
+				Reset = true;
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Num3) && BirdsUsed[2] == 0)
+			{
+				//Clear and reset entire level
+				CreateBird3();
+				BirdBody->SetEnabled(false);
+				BirdBody->SetSleepingAllowed(false);
+				Reset = true;
+			}
+
+			//Press E to activate bird power
+			if (Keyboard::isKeyPressed(Keyboard::E) && Reset == false)
+			{
+				if (BirdCount == 2)
+				{
+					//bird splits into three
+					//spawn three new objects
+					//give them main bird velocity with slight offset
+					//delete main bird
+					//collision check with objects
+				}
+				else if (BirdCount == 3)
+				{
+					Reset = true;
+					BirdBody->SetLinearVelocity(b2Vec2());
+					BirdBody->SetGravityScale(3.0f);
+				}
+			}
+			
 
 			//Show direction vector when mouse is held and dragged for firing
 			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
@@ -257,6 +306,9 @@ void CGameManager::Update()
 
 				if (Reset)
 				{
+					
+					BirdsUsed[BirdCount - 1] = 1;
+
 					//Set bird body position to follow mouse
 					BirdBody->SetLinearVelocity(b2Vec2(0, 0));
 					BirdBody->SetTransform(b2Vec2(Mouse::getPosition(*Window).x / SCALE, Mouse::getPosition(*Window).y / SCALE), BirdBody->GetAngle());
@@ -369,7 +421,7 @@ void CGameManager::Update()
 			//Check for player and enemy object collision and object ground collision
 			for (size_t i = 0; i < EnemySprites.size(); i++)
 			{
-				if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[4]->getGlobalBounds()))
+				if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[6]->getGlobalBounds()))
 				{
 					World->DestroyBody(EnemyBodies[i]);
 					EnemyBodies.erase(EnemyBodies.begin() + i);
@@ -387,6 +439,10 @@ void CGameManager::Update()
 				//change gamestate
 				InGame = GameState::END;
 			}
+
+			//keep pully still
+			Bodies[4]->SetLinearVelocity(b2Vec2(0.0f, Bodies[4]->GetLinearVelocity().y));
+			Bodies[5]->SetLinearVelocity(b2Vec2(0.0f, Bodies[5]->GetLinearVelocity().y));
 			break;
 		}	
 		case GameState::END:
@@ -478,6 +534,11 @@ void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float 
 //creat the player bird object
 void CGameManager::CreateBird()
 {
+	if (BirdBody != NULL)
+	{
+		World->DestroyBody(BirdBody);
+	}
+	BirdCount = 1;
 	Texture* texture = new Texture;
 	texture->loadFromFile("Resources/Textures/grumpybird.png");
 	b2BodyDef* BodyDef = new b2BodyDef;
@@ -485,9 +546,61 @@ void CGameManager::CreateBird()
 	BodyDef->type = b2BodyType::b2_dynamicBody;
 	b2Body* Body = World->CreateBody(BodyDef);
 	b2CircleShape* Shape = new b2CircleShape;
+	Shape->m_radius = (60 / 4) / SCALE;
+	b2FixtureDef* FixtureDef = new b2FixtureDef;
+	FixtureDef->density = 0.8f;
+	FixtureDef->friction = 0.7f;
+	FixtureDef->shape = Shape;
+	Body->CreateFixture(FixtureDef);
+	sf::Sprite* sprite = new Sprite;
+	sprite->setTexture(*texture);
+	sprite->setOrigin(60 / 2, 60 / 2);
+	sprite->setScale(0.6, 0.6);
+	BirdSprite = sprite;
+	BirdBody = Body;
+}
+
+//creat the player bird object Splits
+void CGameManager::CreateBird2()
+{
+	BirdCount = 2;
+	World->DestroyBody(BirdBody);
+	Texture* texture = new Texture;
+	texture->loadFromFile("Resources/Textures/grumpybird2.png");
+	b2BodyDef* BodyDef = new b2BodyDef;
+	BodyDef->position = b2Vec2(200 / SCALE, 460 / SCALE);
+	BodyDef->type = b2BodyType::b2_dynamicBody;
+	b2Body* Body = World->CreateBody(BodyDef);
+	b2CircleShape* Shape = new b2CircleShape;
+	Shape->m_radius = (75 / 4) / SCALE;
+	b2FixtureDef* FixtureDef = new b2FixtureDef;
+	FixtureDef->density = 0.5f;
+	FixtureDef->friction = 0.7f;
+	FixtureDef->shape = Shape;
+	Body->CreateFixture(FixtureDef);
+	sf::Sprite* sprite = new Sprite;
+	sprite->setTexture(*texture);
+	sprite->setOrigin(30, 30);
+	sprite->setScale(0.75, 0.75);
+	BirdSprite = sprite;
+	BirdBody = Body;
+}
+
+//creat the player bird object divebomb
+void CGameManager::CreateBird3()
+{
+	BirdCount = 3;
+	World->DestroyBody(BirdBody);
+	Texture* texture = new Texture;
+	texture->loadFromFile("Resources/Textures/grumpybird3.png");
+	b2BodyDef* BodyDef = new b2BodyDef;
+	BodyDef->position = b2Vec2(200 / SCALE, 460 / SCALE);
+	BodyDef->type = b2BodyType::b2_dynamicBody;
+	b2Body* Body = World->CreateBody(BodyDef);
+	b2CircleShape* Shape = new b2CircleShape;
 	Shape->m_radius = (50 / 4) / SCALE;
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
-	FixtureDef->density = 1.f;
+	FixtureDef->density = 1.0f;
 	FixtureDef->friction = 0.7f;
 	FixtureDef->shape = Shape;
 	Body->CreateFixture(FixtureDef);
@@ -579,7 +692,7 @@ void CGameManager::CreateEnemy(b2World* World, float SizeX, float SizeY, float P
 	
 }
 //Creat e a joint between two objects defined by two anchor points and a joint type
-void CGameManager::JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint)
+void CGameManager::JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint, b2Vec2 _wAnchor1, b2Vec2 _wAnchor2)
 {
 	switch (_joint)
 	{
@@ -597,9 +710,15 @@ void CGameManager::JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1,
 	{
 		b2RevoluteJointDef* newJoint2 = new b2RevoluteJointDef();
 		newJoint2->Initialize(_body1, _body2, _anchorB1);
-
-
 		World->CreateJoint(newJoint2);
+		break;
+	}
+	case BJoint::PULLY:
+	{
+
+		b2PulleyJointDef* newJoint3 = new b2PulleyJointDef();
+		newJoint3->Initialize(_body1, _body2, b2Vec2(_body1->GetPosition().x, _body1->GetPosition().y + 100), b2Vec2(_body2->GetPosition().x, _body2->GetPosition().y + 100), _body1->GetWorldCenter(), _body2->GetWorldCenter(), 0.5f);
+		World->CreateJoint(newJoint3);
 		break;
 	}
 	default:
