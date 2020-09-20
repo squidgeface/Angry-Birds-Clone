@@ -23,9 +23,25 @@ public:
 	CGameManager();
 	~CGameManager();
 
+	void InitialiseMenu();
+
+	void ClearMenu();
+
 
 	void InitiliaseLevel1();
 	void ClearLevel1();
+
+	void InitiliaseLevel2();
+
+	void ClearLevel2();
+
+	void InitialiseWin();
+
+	void ClearWin();
+
+	void InitialiseLose();
+
+	void ClearLose();
 
 	void InitialiseGameOver();
 
@@ -35,7 +51,8 @@ public:
 
 	void CreateObject(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, BShape _shape, float _scaleX = 1.0f, float _scaleY = 1.0f, b2BodyType _bodyType = b2BodyType::b2_dynamicBody);
 	void CreateBird();
-	void CreateBird2();
+	void CreateBird2(float _size);
+	void CreateClones();
 	void CreateBird3();
 	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f,BShape _shape = BShape::BOX);
 	void CreateEnemy(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape);
@@ -65,6 +82,8 @@ protected:
 	//player object pointers
 	Sprite* BirdSprite = 0;
 	b2Body* BirdBody = 0;
+	vector<Sprite*> cloneSprites;
+	vector<b2Body*> cloneBodies;
 	//arrow sprite
 	Sprite* Arrow = 0;
 	//sling sprite
@@ -77,8 +96,10 @@ protected:
 	Sprite* WinSprite = 0;
 	//instructions text
 	Text* InstructionsText = 0;
-	//instructions text
+	//menu text
 	Text* RetryButton = 0;
+	Text* PlayButton = 0;
+	Text* QuitButton = 0;
 
 
 	//variables
@@ -93,5 +114,11 @@ protected:
 	GameState InGame = GameState::MENU;
 	int BirdCount = 0;
 	int BirdsUsed[3];
+	int Level = 1;
+	float Timer = 0;
+	Clock deltaClock;
+	Time prevDeltaTime;
+	Time deltaTime;
+	Time currentTime;
 };
 

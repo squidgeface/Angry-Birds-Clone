@@ -49,11 +49,42 @@ CGameManager::~CGameManager()
 	}
 	
 }
-
+//Initialise Menu
+void CGameManager::InitialiseMenu()
+{
+	Level = 0;
+	//initialise background image
+	Texture* WinTex = new Texture;
+	WinTex->loadFromFile("Resources/Textures/menu.png");
+	WinSprite = new Sprite;
+	WinSprite->setTexture(*WinTex);
+	//initialise retry font
+	Font* RetryTex = new Font;
+	RetryTex->loadFromFile("Resources/Fonts/vindicatorital.ttf");
+	PlayButton = new Text;
+	PlayButton->setFont(*RetryTex);
+	PlayButton->setCharacterSize(60);
+	PlayButton->setFillColor(Color::Green);
+	QuitButton = new Text;
+	QuitButton->setFont(*RetryTex);
+	QuitButton->setCharacterSize(60);
+	QuitButton->setFillColor(Color::Green);
+}
+//clear game over pointers
+void CGameManager::ClearMenu()
+{
+	delete WinSprite;
+	WinSprite = 0;
+	delete PlayButton;
+	PlayButton = 0;
+	delete QuitButton;
+	QuitButton = 0;
+}
 //Load level 1
 void CGameManager::InitiliaseLevel1()
 {
 	//initialise variables
+	Level = 1;
 	IsFired = false;
 	Reset = true;
 	InGame = GameState::GAME;
@@ -70,12 +101,12 @@ void CGameManager::InitiliaseLevel1()
 	Font* font = new Font;
 	font->loadFromFile("Resources/Fonts/BRLNSR.TTF");
 	InstructionsText->setFont(*font);
-	InstructionsText->setCharacterSize(20);
+	InstructionsText->setCharacterSize(18);
 	InstructionsText->setOutlineColor(Color::Black);
-	InstructionsText->setOutlineThickness(2.0f);
+	InstructionsText->setOutlineThickness(1.0f);
 	InstructionsText->setFillColor(Color::White);
-	InstructionsText->setString("Press <Q> to Reset Level - Press <E> to Reset Bird - <Left Click> And Drag Bird To Aim Then Release To Fire");
-	InstructionsText->setPosition(40.0f, 0.0f);
+	InstructionsText->setString("Press <Q> to Reset Level - Press <E> to use abilities - <Left Click> And Drag Bird To Aim Then Release To Fire - <1-3> change Birds");
+	InstructionsText->setPosition(5.0f, 0.0f);
 
 	//create ceiling and joint objects
 	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
@@ -178,15 +209,222 @@ void CGameManager::ClearLevel1()
 	{
 		EnemySprites.pop_back();
 	}
+	while (cloneSprites.size() > 0)
+	{
+		cloneSprites.pop_back();
+		cloneBodies.pop_back();
+	}
 	//clear world body list
 	while (World->GetBodyCount() > 0)
 	{
 		World->DestroyBody(World->GetBodyList());
 	}
 }
+//Load level 2
+void CGameManager::InitiliaseLevel2()
+{
+	//initialise variables
+	Level = 2;
+	IsFired = false;
+	Reset = true;
+	InGame = GameState::GAME;
+	EnemySize = 0;
+	BirdsUsed[0] = 0;
+	BirdsUsed[1] = 0;
+	BirdsUsed[2] = 0;
+	//Initialise pointers
+	Arrow = new Sprite;
+	SlingSprite = new Sprite;
+	BackgroundSprite = new Sprite;
+	//Initialise instructions text
+	InstructionsText = new Text;
+	Font* font = new Font;
+	font->loadFromFile("Resources/Fonts/BRLNSR.TTF");
+	InstructionsText->setFont(*font);
+	InstructionsText->setCharacterSize(18);
+	InstructionsText->setOutlineColor(Color::Black);
+	InstructionsText->setOutlineThickness(1.0f);
+	InstructionsText->setFillColor(Color::White);
+	InstructionsText->setString("Press <Q> to Reset Level - Press <E> to use abilities - <Left Click> And Drag Bird To Aim Then Release To Fire - <1-3> change Birds");
+	InstructionsText->setPosition(5.0f, 0.0f);
+
+	//create ceiling and joint objects
+	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 250 / SCALE, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x + 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(Bodies[2]->GetPosition().x - 25.0f / SCALE, Bodies[2]->GetPosition().y), BJoint::REVO);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x - 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(), BJoint::REVO);
+
+	CreateObject(World, 100, 10, 400, 400, "Resources/Textures/plank.png", BShape::BOX);
+	CreateObject(World, 1, 250, 600, 500, "Resources/Textures/gate.png", BShape::BOX);
+	JoinObjects(Bodies[4], Bodies[5], b2Vec2(Bodies[4]->GetPosition().x, Bodies[4]->GetPosition().y), b2Vec2(Bodies[5]->GetPosition().x, Bodies[4]->GetPosition().y), BJoint::PULLY, b2Vec2(utils::HSWidth - 200, 0.0f), b2Vec2(utils::HSWidth + 200, 0.0f));
+	Bodies[4]->SetFixedRotation(true);
+	Bodies[5]->SetFixedRotation(true);
+	Bodies[4]->SetGravityScale(0.5f);
+
+
+	//create ground
+	CreateObject(World, utils::ScreenWidth, 25.0f, utils::HSWidth, utils::ScreenHeight, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
+
+	//create background sprite
+	Texture* Background = new Texture;
+	Background->loadFromFile("Resources/Textures/background.png");
+	BackgroundSprite->setTexture(*Background);
+
+	//create slingshot sprite
+	Texture* Sling = new Texture;
+	Sling->loadFromFile("Resources/Textures/slingshot.png");
+	SlingSprite->setTexture(*Sling);
+	SlingSprite->setPosition(150.0f, 430.0f);
+
+	//Create Grumpy Birds
+	CreateBird();
+	BirdBody->SetEnabled(false);
+	BirdBody->SetSleepingAllowed(false);
+
+	//Create All platforms and obstacles
+	float boxSize = 50.0f;
+	CreateObject(World, boxSize, boxSize, 700, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 700, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 700, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 700, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 780, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+
+	//Destructable planks
+	CreateDestructable(World, 100, 10, 740, 500, "Resources/Textures/plank.png");
+	CreateDestructable(World, 100, 10, 740, 430, "Resources/Textures/plank.png");
+	CreateDestructable(World, 100, 10, 740, 570, "Resources/Textures/plank.png");
+
+	//Destructable enemy
+	CreateEnemy(World, 50, 50, 740, 500, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateEnemy(World, 50, 50, 740, 400, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateEnemy(World, 50, 50, 740, 540, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+
+	//Arrow sprite
+	Texture* aBox = new Texture;
+	aBox->loadFromFile("Resources/Textures/arrow.png");
+	Arrow->setTexture(*aBox);
+	Arrow->setOrigin(0.0f, 20.0f);
+	Arrow->setPosition(200.0f, 460.0f);
+	Arrow->scale(0.0f, 0.0f);
+}
+//Clear Level 2 pointers and vectors
+void CGameManager::ClearLevel2()
+{
+	EnemySize = 0;
+	Arrow = 0;
+	SlingSprite = 0;
+	BackgroundSprite = 0;
+	BirdBody = 0;
+	BirdSprite = 0;
+
+	while (Sprites.size() > 0)
+	{
+		Sprites.pop_back();
+	}
+	while (Bodies.size() > 0)
+	{
+		Bodies.pop_back();
+	}
+
+	while (DestSprites.size() > 0)
+	{
+		DestSprites.pop_back();
+	}
+	while (DestBodies.size() > 0)
+	{
+		DestBodies.pop_back();
+	}
+
+	while (EnemyBodies.size() > 0)
+	{
+		EnemyBodies.pop_back();
+	}
+	while (EnemySprites.size() > 0)
+	{
+		EnemySprites.pop_back();
+	}
+	while (cloneSprites.size() > 0)
+	{
+		cloneSprites.pop_back();
+		cloneBodies.pop_back();
+	}
+	//clear world body list
+	while (World->GetBodyCount() > 0)
+	{
+		World->DestroyBody(World->GetBodyList());
+	}
+}
+//Initialise win screen
+void CGameManager::InitialiseWin()
+{
+	//initialise background image
+	Texture* WinTex = new Texture;
+	WinTex->loadFromFile("Resources/Textures/win.png");
+	WinSprite = new Sprite;
+	WinSprite->setTexture(*WinTex);
+	//initialise retry font
+	Font* RetryTex = new Font;
+	RetryTex->loadFromFile("Resources/Fonts/vindicatorital.ttf");
+	RetryButton = new Text;
+	RetryButton->setFont(*RetryTex);
+	RetryButton->setCharacterSize(60);
+	RetryButton->setFillColor(Color::Green);
+	QuitButton = new Text;
+	QuitButton->setFont(*RetryTex);
+	QuitButton->setCharacterSize(60);
+	QuitButton->setFillColor(Color::Green);
+}
+//clear game win pointers
+void CGameManager::ClearWin()
+{
+	delete WinSprite;
+	WinSprite = 0;
+	delete RetryButton;
+	RetryButton = 0;
+	delete QuitButton;
+	QuitButton = 0;
+}
+//Initialise Lose
+void CGameManager::InitialiseLose()
+{
+	Level = 0;
+	//initialise background image
+	Texture* WinTex = new Texture;
+	WinTex->loadFromFile("Resources/Textures/lose.png");
+	WinSprite = new Sprite;
+	WinSprite->setTexture(*WinTex);
+	//initialise retry font
+	Font* RetryTex = new Font;
+	RetryTex->loadFromFile("Resources/Fonts/vindicatorital.ttf");
+	RetryButton = new Text;
+	RetryButton->setFont(*RetryTex);
+	RetryButton->setCharacterSize(60);
+	RetryButton->setFillColor(Color::Green);
+	QuitButton = new Text;
+	QuitButton->setFont(*RetryTex);
+	QuitButton->setCharacterSize(60);
+	QuitButton->setFillColor(Color::Green);
+}
+//clear game over pointers
+void CGameManager::ClearLose()
+{
+	delete WinSprite;
+	WinSprite = 0;
+	delete RetryButton;
+	RetryButton = 0;
+	delete QuitButton;
+	QuitButton = 0;
+}
 //Initialise GameOver
 void CGameManager::InitialiseGameOver()
 {
+	Level = 0;
 	//initialise background image
 	Texture* WinTex = new Texture;
 	WinTex->loadFromFile("Resources/Textures/win.png");
@@ -212,7 +450,7 @@ void CGameManager::ClearGameOver()
 void CGameManager::Update()
 {
 	//Initialise level 1
-	InitiliaseLevel1();
+	InitialiseMenu();
 	
 	//Game update
 	while (Window->isOpen())
@@ -232,7 +470,62 @@ void CGameManager::Update()
 		{
 		case GameState::MENU:
 		{
-			//menu code here
+			//When hovering over play button
+			if (PlayButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				PlayButton->setString("[Play]");
+				PlayButton->setOutlineThickness(3.0f);
+				PlayButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				PlayButton->setOutlineThickness(1.0f);
+				PlayButton->setString("Play");
+				PlayButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
+
+			}
+			//When hovering over quit button
+			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				QuitButton->setString("[Quit]");
+				QuitButton->setOutlineThickness(3.0f);
+				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				QuitButton->setOutlineThickness(1.0f);
+				QuitButton->setString("Quit");
+				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
+
+			}
+			//Clear screen with white
+			Window->clear(Color::White);
+			//Draw win screen
+			Window->draw(*WinSprite);
+
+			Window->draw(*PlayButton);
+			Window->draw(*QuitButton);
+			//display window
+			Window->display();
+
+			//initialise game when clicking on "Play"
+			if (Mouse::isButtonPressed(Mouse::Left) && PlayButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				ClearMenu();
+				InitiliaseLevel1();
+				InGame = GameState::GAME;
+			}
+			//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				Window->close();
+			}
 
 			break;
 		}
@@ -258,7 +551,7 @@ void CGameManager::Update()
 			if (Keyboard::isKeyPressed(Keyboard::Num2) && BirdsUsed[1] == 0)
 			{
 				//Clear and reset entire level
-				CreateBird2();
+				CreateBird2(75.0f);
 				BirdBody->SetEnabled(false);
 				BirdBody->SetSleepingAllowed(false);
 				Reset = true;
@@ -278,15 +571,15 @@ void CGameManager::Update()
 				if (BirdCount == 2)
 				{
 					//bird splits into three
-					//spawn three new objects
-					//give them main bird velocity with slight offset
-					//delete main bird
-					//collision check with objects
+					CreateClones();
+					BirdBody->SetEnabled(false);
+					BirdBody->SetTransform(b2Vec2(-100, 0), 0);
+					Reset = true;
 				}
 				else if (BirdCount == 3)
 				{
 					Reset = true;
-					BirdBody->SetLinearVelocity(b2Vec2());
+					BirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 					BirdBody->SetGravityScale(3.0f);
 				}
 			}
@@ -389,6 +682,13 @@ void CGameManager::Update()
 				}
 			}
 
+			for (size_t i = 0; i < cloneSprites.size(); i++)
+			{
+				cloneSprites[i]->setPosition(SCALE * cloneBodies[i]->GetPosition().x, cloneBodies[i]->GetPosition().y * SCALE);
+				cloneSprites[i]->setRotation(cloneBodies[i]->GetAngle() * 180 / b2_pi);
+				Window->draw(*cloneSprites[i]);
+			}
+
 			//Set bird body max velocity
 			if (BirdBody->GetLinearVelocity().x > 20.0f)
 			{
@@ -418,6 +718,22 @@ void CGameManager::Update()
 				}
 			}
 
+			//check for clone sprite destructable collision
+			for (size_t j = 0; j < cloneSprites.size(); j++)
+			{
+				for (size_t i = 0; i < DestSprites.size(); i++)
+				{
+					if (cloneSprites[j]->getGlobalBounds().intersects(DestSprites[i]->getGlobalBounds()))
+					{
+						World->DestroyBody(DestBodies[i]);
+						DestBodies.erase(DestBodies.begin() + i);
+						DestSprites.erase(DestSprites.begin() + i);
+					}
+				}
+			}
+
+		
+
 			//Check for player and enemy object collision and object ground collision
 			for (size_t i = 0; i < EnemySprites.size(); i++)
 			{
@@ -429,29 +745,220 @@ void CGameManager::Update()
 					EnemySize--;
 				}
 			}
-			//when all enemies are dead (or debug pres 'A' - initialise game over
-			if (EnemySize == 0 || Keyboard::isKeyPressed(Keyboard::A))
+
+			//check for clone sprite enemy collision
+			for (size_t j = 0; j < cloneSprites.size(); j++)
 			{
-				//clear level objects
-				ClearLevel1();
-				//Initialise game over screen
-				InitialiseGameOver();
-				//change gamestate
-				InGame = GameState::END;
+				for (size_t i = 0; i < EnemySprites.size(); i++)
+				{
+					if (cloneSprites[j]->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()))
+					{
+						World->DestroyBody(EnemyBodies[i]);
+						EnemyBodies.erase(EnemyBodies.begin() + i);
+						EnemySprites.erase(EnemySprites.begin() + i);
+						EnemySize--;
+					}
+				}
 			}
 
 			//keep pully still
 			Bodies[4]->SetLinearVelocity(b2Vec2(0.0f, Bodies[4]->GetLinearVelocity().y));
 			Bodies[5]->SetLinearVelocity(b2Vec2(0.0f, Bodies[5]->GetLinearVelocity().y));
+
+			
+			//get current elapsed time of frame
+			currentTime = deltaClock.getElapsedTime();
+
+			deltaTime = (currentTime - prevDeltaTime);
+
+			prevDeltaTime = currentTime;
+			deltaClock.restart();
+
+			//when all enemies are dead (or debug pres 'A' - initialise game over
+			if (EnemySize == 0 || Keyboard::isKeyPressed(Keyboard::A))
+			{
+				if (Level == 1)
+				{
+					//clear level objects
+					ClearLevel1();
+					//Initialise game over screen
+					InitialiseWin();
+					//change gamestate
+					InGame = GameState::WIN;
+				}
+				else if (Level == 2)
+				{
+					//clear level objects
+					ClearLevel2();
+					//Initialise game over screen
+					InitialiseWin();
+					//change gamestate
+					InGame = GameState::END;
+				}
+			}
+
+			if (BirdsUsed[0] == 1 && BirdsUsed[1] == 1 && BirdsUsed[2] == 1 && (Level == 1 || Level == 2))
+			{
+				Timer += abs(deltaTime.asMicroseconds());
+
+				if (Timer >= 200000)
+				{
+					if (Level == 1)
+					{
+						ClearLevel1();
+					}
+					else if (Level == 2)
+					{
+						ClearLevel2();
+					}
+
+					InitialiseLose();
+					InGame = GameState::LOSE;
+				}
+
+			}
+
 			break;
-		}	
-		case GameState::END:
+		}
+		case GameState::WIN:
+		{
+			//When hovering over retry button
+			if (RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				RetryButton->setString("[Continue]");
+				RetryButton->setOutlineThickness(3.0f);
+				RetryButton->setPosition(utils::HSWidth - 118.0f, utils::HSHeight);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				RetryButton->setOutlineThickness(1.0f);
+				RetryButton->setString("Continue");
+				RetryButton->setPosition(utils::HSWidth - 100.0f, utils::HSHeight);
+
+			}
+			//When hovering over retry button
+			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				QuitButton->setString("[Quit]");
+				QuitButton->setOutlineThickness(3.0f);
+				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				QuitButton->setOutlineThickness(1.0f);
+				QuitButton->setString("Quit");
+				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
+
+			}
+			//Clear screen with white
+			Window->clear(Color::White);
+			//Draw win screen
+			Window->draw(*WinSprite);
+
+			Window->draw(*RetryButton);
+			Window->draw(*QuitButton);
+			//display window
+			Window->display();
+
+			//initialise game when clicking on "Retry"
+			if (Mouse::isButtonPressed(Mouse::Left) && RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				ClearWin();
+				InitiliaseLevel2();
+				InGame = GameState::GAME;
+			}
+			//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				ClearWin();
+				InitialiseMenu();
+				InGame = GameState::MENU;
+			}
+			break;
+		}
+		case GameState::LOSE:
 		{
 			//When hovering over retry button
 			if (RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
 				RetryButton->setString("[Retry]");
+				RetryButton->setOutlineThickness(3.0f);
+				RetryButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				RetryButton->setOutlineThickness(1.0f);
+				RetryButton->setString("Retry");
+				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
+
+			}
+			//When hovering over retry button
+			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				QuitButton->setString("[Quit]");
+				QuitButton->setOutlineThickness(3.0f);
+				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				QuitButton->setOutlineThickness(1.0f);
+				QuitButton->setString("Quit");
+				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
+
+			}
+			//Clear screen with white
+			Window->clear(Color::White);
+			//Draw win screen
+			Window->draw(*WinSprite);
+
+			Window->draw(*RetryButton);
+			Window->draw(*QuitButton);
+			//display window
+			Window->display();
+
+			//initialise game when clicking on "Retry"
+			if (Mouse::isButtonPressed(Mouse::Left) && RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				ClearWin();
+				if (Level == 1)
+				{
+					InitiliaseLevel1();
+				}
+				else if (Level == 2)
+				{
+					InitiliaseLevel2();
+				}
+				
+				InGame = GameState::GAME;
+			}
+			//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				ClearWin();
+				InitialiseMenu();
+				InGame = GameState::MENU;
+			}
+			break;
+		}
+		case GameState::END:
+		{
+			//When hovering over retry button
+			if (RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				RetryButton->setString("[Quit]");
 				RetryButton->setOutlineThickness(3.0f);
 				RetryButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
 				
@@ -460,7 +967,7 @@ void CGameManager::Update()
 			{
 				//reset text when not hovering
 				RetryButton->setOutlineThickness(1.0f);
-				RetryButton->setString("Retry");
+				RetryButton->setString("Quit");
 				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
 				
 			}
@@ -477,8 +984,8 @@ void CGameManager::Update()
 			if (Mouse::isButtonPressed(Mouse::Left) && RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				ClearGameOver();
-				InitiliaseLevel1();
-				InGame = GameState::GAME;
+				InitialiseMenu();
+				InGame = GameState::MENU;
 			}
 		}
 			break;
@@ -538,6 +1045,17 @@ void CGameManager::CreateBird()
 	{
 		World->DestroyBody(BirdBody);
 	}
+
+	for (size_t i = 0; i < cloneBodies.size(); i++)
+	{
+		World->DestroyBody(cloneBodies[i]);
+	}
+
+	while (cloneSprites.size() > 0)
+	{
+		cloneSprites.pop_back();
+		cloneBodies.pop_back();
+	}
 	BirdCount = 1;
 	Texture* texture = new Texture;
 	texture->loadFromFile("Resources/Textures/grumpybird.png");
@@ -561,10 +1079,13 @@ void CGameManager::CreateBird()
 }
 
 //creat the player bird object Splits
-void CGameManager::CreateBird2()
+void CGameManager::CreateBird2(float _size)
 {
 	BirdCount = 2;
-	World->DestroyBody(BirdBody);
+	if (BirdBody != NULL)
+	{
+		World->DestroyBody(BirdBody);
+	}
 	Texture* texture = new Texture;
 	texture->loadFromFile("Resources/Textures/grumpybird2.png");
 	b2BodyDef* BodyDef = new b2BodyDef;
@@ -572,7 +1093,7 @@ void CGameManager::CreateBird2()
 	BodyDef->type = b2BodyType::b2_dynamicBody;
 	b2Body* Body = World->CreateBody(BodyDef);
 	b2CircleShape* Shape = new b2CircleShape;
-	Shape->m_radius = (75 / 4) / SCALE;
+	Shape->m_radius = (_size / 4) / SCALE;
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 	FixtureDef->density = 0.5f;
 	FixtureDef->friction = 0.7f;
@@ -580,17 +1101,59 @@ void CGameManager::CreateBird2()
 	Body->CreateFixture(FixtureDef);
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
-	sprite->setOrigin(30, 30);
-	sprite->setScale(0.75, 0.75);
+	sprite->setOrigin(_size/2 - 5, _size / 2 - 5);
+	sprite->setScale(_size / 100, _size / 100);
 	BirdSprite = sprite;
 	BirdBody = Body;
+}
+
+void CGameManager::CreateClones()
+{
+	BirdCount = 2;
+	for (size_t i = 0; i < 3; i++)
+	{
+		Texture* texture = new Texture;
+		texture->loadFromFile("Resources/Textures/grumpybird2.png");
+		b2BodyDef* BodyDef = new b2BodyDef;
+		BodyDef->position = BirdBody->GetPosition();
+		BodyDef->type = b2BodyType::b2_dynamicBody;
+		b2Body* Body = World->CreateBody(BodyDef);
+		b2CircleShape* Shape = new b2CircleShape;
+		Shape->m_radius = (30 / 4) / SCALE;
+		b2FixtureDef* FixtureDef = new b2FixtureDef;
+		FixtureDef->density = 0.8f;
+		FixtureDef->friction = 0.7f;
+		FixtureDef->shape = Shape;
+		Body->CreateFixture(FixtureDef);
+		sf::Sprite* sprite = new Sprite;
+		sprite->setTexture(*texture);
+		sprite->setOrigin(25, 25);
+		sprite->setScale(0.4f, 0.4f);
+		Body->SetLinearVelocity(b2Vec2(BirdBody->GetLinearVelocity().x, BirdBody->GetLinearVelocity().y - i * 1));
+		cloneSprites.push_back(sprite);
+		cloneBodies.push_back(Body);
+	}
 }
 
 //creat the player bird object divebomb
 void CGameManager::CreateBird3()
 {
+	for (size_t i = 0; i < cloneBodies.size(); i++)
+	{
+		World->DestroyBody(cloneBodies[i]);
+	}
+
+	while (cloneSprites.size() > 0)
+	{
+		cloneSprites.pop_back();
+		cloneBodies.pop_back();
+	}
+
 	BirdCount = 3;
-	World->DestroyBody(BirdBody);
+	if (BirdBody != NULL)
+	{
+		World->DestroyBody(BirdBody);
+	}
 	Texture* texture = new Texture;
 	texture->loadFromFile("Resources/Textures/grumpybird3.png");
 	b2BodyDef* BodyDef = new b2BodyDef;
