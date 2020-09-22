@@ -657,11 +657,22 @@ void CGameManager::Update()
 				IsPressed = false;
 				MouseReleaseX = Mouse::getPosition(*Window).x;
 				MouseReleaseY = Mouse::getPosition(*Window).y;
-				//hide arrow sprite
-				Arrow->scale(0.0f, 0.0f);
 
-				if (Reset)
-					IsFired = true;
+				float distance = Distancev2(vec2(MouseInitialX, MouseInitialY), vec2(MouseReleaseX, MouseReleaseY));
+
+				if (distance > 0)
+				{
+					//hide arrow sprite
+					Arrow->scale(0.0f, 0.0f);
+
+					if (Reset)
+						IsFired = true;
+				}
+				else
+				{
+						BirdBody->SetEnabled(false);
+						BirdBody->SetTransform(b2Vec2(200 / SCALE, 460 / SCALE), 0);
+				}
 			}
 
 			//When bird is fired
