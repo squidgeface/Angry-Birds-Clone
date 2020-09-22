@@ -113,6 +113,7 @@ void CGameManager::InitiliaseLevel1()
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 250 / SCALE, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	
 	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x + 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(Bodies[2]->GetPosition().x - 25.0f / SCALE, Bodies[2]->GetPosition().y), BJoint::REVO);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x - 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(), BJoint::REVO);
@@ -219,6 +220,11 @@ void CGameManager::ClearLevel1()
 	{
 		World->DestroyBody(World->GetBodyList());
 	}
+	//clear world joint list
+	while (World->GetJointCount() > 0)
+	{
+		World->DestroyJoint(World->GetJointList());
+	}
 }
 //Load level 2
 void CGameManager::InitiliaseLevel2()
@@ -249,28 +255,25 @@ void CGameManager::InitiliaseLevel2()
 	InstructionsText->setPosition(5.0f, 0.0f);
 
 	//create ceiling and joint objects
+	CreateDestructable(World, 100, 5.0f, utils::HSWidth, 70.0f, "Resources/Textures/plank.png", 1.0f, 1.0f, BShape::BOX, b2BodyType::b2_staticBody);
+	DestBodies[0]->SetTransform(DestBodies[0]->GetPosition(),  1.57f);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(DestBodies[0], Bodies[0], b2Vec2(DestBodies[0]->GetPosition().x, DestBodies[0]->GetPosition().y + 50/SCALE), b2Vec2(Bodies[0]->GetPosition().x - 50.0f / SCALE, Bodies[0]->GetPosition().y), BJoint::DIST);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 50.0f / SCALE, Bodies[0]->GetPosition().y), b2Vec2(), BJoint::REVO);
+	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
+	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(), BJoint::REVO);
+	
 	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
-	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
-	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 250 / SCALE, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
-	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
-	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x + 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(Bodies[2]->GetPosition().x - 25.0f / SCALE, Bodies[2]->GetPosition().y), BJoint::REVO);
-	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
-	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x - 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(), BJoint::REVO);
-
-	CreateObject(World, 100, 10, 400, 400, "Resources/Textures/plank.png", BShape::BOX);
-	CreateObject(World, 1, 250, 600, 500, "Resources/Textures/gate.png", BShape::BOX);
-	JoinObjects(Bodies[4], Bodies[5], b2Vec2(Bodies[4]->GetPosition().x, Bodies[4]->GetPosition().y), b2Vec2(Bodies[5]->GetPosition().x, Bodies[4]->GetPosition().y), BJoint::PULLY, b2Vec2(utils::HSWidth - 200, 0.0f), b2Vec2(utils::HSWidth + 200, 0.0f));
-	Bodies[4]->SetFixedRotation(true);
-	Bodies[5]->SetFixedRotation(true);
-	Bodies[4]->SetGravityScale(0.5f);
+	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x + 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(Bodies[3]->GetPosition().x + 250.0f / SCALE, Bodies[3]->GetPosition().y + 0.3f), BJoint::DIST);
 
 
-	//create ground
+	//create ground and ceiling //body[4]
 	CreateObject(World, utils::ScreenWidth, 25.0f, utils::HSWidth, utils::ScreenHeight, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
-
+	
 	//create background sprite
 	Texture* Background = new Texture;
-	Background->loadFromFile("Resources/Textures/background.png");
+	Background->loadFromFile("Resources/Textures/background2.png");
 	BackgroundSprite->setTexture(*Background);
 
 	//create slingshot sprite
@@ -286,24 +289,28 @@ void CGameManager::InitiliaseLevel2()
 
 	//Create All platforms and obstacles
 	float boxSize = 50.0f;
-	CreateObject(World, boxSize, boxSize, 700, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 700, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 700, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 700, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	CreateObject(World, boxSize, boxSize, 780, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-
+	CreateDestructable(World, 100, 10, 740, 500, "Resources/Textures/plank.png", 2.0, 1.0);
+	CreateObject(World, boxSize, boxSize, 725, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 725, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 750, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 750, 560, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	
+	CreateDestructable(World, 100, 10, 740, 430, "Resources/Textures/plank.png", 2.0, 1.0);
+	CreateObject(World, boxSize, boxSize, 660, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 660, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 820, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	CreateObject(World, boxSize, boxSize, 820, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
+	//CreateDestructable(World, 100, 10, 740, 570, "Resources/Textures/plank.png");
 	//Destructable planks
-	CreateDestructable(World, 100, 10, 740, 500, "Resources/Textures/plank.png");
-	CreateDestructable(World, 100, 10, 740, 430, "Resources/Textures/plank.png");
-	CreateDestructable(World, 100, 10, 740, 570, "Resources/Textures/plank.png");
+	
+	
+
 
 	//Destructable enemy
-	CreateEnemy(World, 50, 50, 740, 500, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
-	CreateEnemy(World, 50, 50, 740, 400, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
-	CreateEnemy(World, 50, 50, 740, 540, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateEnemy(World, 50, 50, 630, 10, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+
+	CreateEnemy(World, 50, 50, 725, 470, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
+	CreateEnemy(World, 50, 50, 750, 470, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 
 	//Arrow sprite
 	Texture* aBox = new Texture;
@@ -393,7 +400,7 @@ void CGameManager::ClearWin()
 //Initialise Lose
 void CGameManager::InitialiseLose()
 {
-	Level = 0;
+	
 	//initialise background image
 	Texture* WinTex = new Texture;
 	WinTex->loadFromFile("Resources/Textures/lose.png");
@@ -455,8 +462,10 @@ void CGameManager::Update()
 	//Game update
 	while (Window->isOpen())
 	{
-		//set mouse sprite to follow mouse for bird collision
-		MouseSprite->setPosition(Mouse::getPosition(*Window).x - 25.0f, Mouse::getPosition(*Window).y - 25.0f);
+		//if (Mouse::isButtonPressed(Mouse::Left) == false) {
+			//set mouse sprite to follow mouse for bird collision
+			MouseSprite->setPosition(Mouse::getPosition(*Window).x - 25.0f, Mouse::getPosition(*Window).y - 25.0f);
+		//}
 
 		Event event;
 		while (Window->pollEvent(event))
@@ -520,11 +529,15 @@ void CGameManager::Update()
 				ClearMenu();
 				InitiliaseLevel1();
 				InGame = GameState::GAME;
+				break;
 			}
-			//initialise game when clicking on "Quit"
-			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			if (QuitButton != NULL)
 			{
-				Window->close();
+				//initialise game when clicking on "Quit"
+				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+				{
+					Window->close();
+				}
 			}
 
 			break;
@@ -535,8 +548,16 @@ void CGameManager::Update()
 			if (Keyboard::isKeyPressed(Keyboard::Q))
 			{
 				//Clear and reset entire level
-				ClearLevel1();
-				InitiliaseLevel1();
+				if (Level == 1)
+				{
+					ClearLevel1();
+					InitiliaseLevel1();
+				}
+				else if (Level == 2)
+				{
+					ClearLevel2();
+					InitiliaseLevel2();
+				}
 				Reset = true;
 			}
 			
@@ -586,7 +607,7 @@ void CGameManager::Update()
 			
 
 			//Show direction vector when mouse is held and dragged for firing
-			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()) || IsPressed && Mouse::isButtonPressed(Mouse::Left))
 			{
 				//Get initial mouse position
 				if (!IsPressed)
@@ -600,11 +621,28 @@ void CGameManager::Update()
 				if (Reset)
 				{
 					
-					BirdsUsed[BirdCount - 1] = 1;
-
+					
+					//MouseSprite->setPosition(Vector2f(BirdBody->GetPosition().x, BirdBody->GetPosition().y));
 					//Set bird body position to follow mouse
 					BirdBody->SetLinearVelocity(b2Vec2(0, 0));
 					BirdBody->SetTransform(b2Vec2(Mouse::getPosition(*Window).x / SCALE, Mouse::getPosition(*Window).y / SCALE), BirdBody->GetAngle());
+					if (BirdBody->GetTransform().p.y > (utils::ScreenHeight - 15.0f)/SCALE)
+					{
+						BirdBody->SetTransform(b2Vec2(BirdBody->GetTransform().p.x, (utils::ScreenHeight - 15.0f) / SCALE), 0.0f);
+					}
+					else if (BirdBody->GetTransform().p.y < (utils::HSHeight) / SCALE)
+					{
+						BirdBody->SetTransform(b2Vec2(BirdBody->GetTransform().p.x, (utils::HSHeight) / SCALE), 0.0f);
+					}
+					if (BirdBody->GetTransform().p.x > 200 / SCALE)
+					{
+						BirdBody->SetTransform(b2Vec2(200 / SCALE, BirdBody->GetTransform().p.y), 0.0f);
+					}
+					else if (BirdBody->GetTransform().p.x <= 0)
+					{
+						BirdBody->SetTransform(b2Vec2(0, BirdBody->GetTransform().p.y), 0.0f);
+					}
+
 					//create a force vector between initial position and mouse position for transforming the arrow sprite
 					vec2 forceVec = vec2(Mouse::getPosition(*Window).x - MouseInitialX, Mouse::getPosition(*Window).y - MouseInitialY);
 					forceVec = normalize(forceVec);
@@ -632,7 +670,7 @@ void CGameManager::Update()
 				//create a force vector between the mouse and initial bird position
 				vec2 forceVec = vec2(MouseReleaseX - MouseInitialX, MouseReleaseY - MouseInitialY);
 				forceVec = normalize(forceVec);
-
+				BirdsUsed[BirdCount - 1] = 1;
 				//Get the distance between the two postions
 				float distance = Distancev2(vec2(MouseInitialX, MouseInitialY), vec2(MouseReleaseX, MouseReleaseY));
 				//Reverse the distance direction and multiple by factor
@@ -737,12 +775,25 @@ void CGameManager::Update()
 			//Check for player and enemy object collision and object ground collision
 			for (size_t i = 0; i < EnemySprites.size(); i++)
 			{
-				if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[6]->getGlobalBounds()))
+				if (Level == 1)
 				{
-					World->DestroyBody(EnemyBodies[i]);
-					EnemyBodies.erase(EnemyBodies.begin() + i);
-					EnemySprites.erase(EnemySprites.begin() + i);
-					EnemySize--;
+					if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[6]->getGlobalBounds()))
+					{
+						World->DestroyBody(EnemyBodies[i]);
+						EnemyBodies.erase(EnemyBodies.begin() + i);
+						EnemySprites.erase(EnemySprites.begin() + i);
+						EnemySize--;
+					}
+				}
+				else
+				{
+					if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[4]->getGlobalBounds()))
+					{
+						World->DestroyBody(EnemyBodies[i]);
+						EnemyBodies.erase(EnemyBodies.begin() + i);
+						EnemySprites.erase(EnemySprites.begin() + i);
+						EnemySize--;
+					}
 				}
 			}
 
@@ -801,7 +852,7 @@ void CGameManager::Update()
 			{
 				Timer += abs(deltaTime.asMicroseconds());
 
-				if (Timer >= 200000)
+				if (Timer >= 150000)
 				{
 					if (Level == 1)
 					{
@@ -872,13 +923,17 @@ void CGameManager::Update()
 				ClearWin();
 				InitiliaseLevel2();
 				InGame = GameState::GAME;
+				break;
 			}
 			//initialise game when clicking on "Quit"
-			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			if (QuitButton != NULL)
 			{
-				ClearWin();
-				InitialiseMenu();
-				InGame = GameState::MENU;
+				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+				{
+					ClearWin();
+					InitialiseMenu();
+					InGame = GameState::MENU;
+				}
 			}
 			break;
 		}
@@ -931,7 +986,7 @@ void CGameManager::Update()
 			//initialise game when clicking on "Retry"
 			if (Mouse::isButtonPressed(Mouse::Left) && RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
-				ClearWin();
+				
 				if (Level == 1)
 				{
 					InitiliaseLevel1();
@@ -940,15 +995,21 @@ void CGameManager::Update()
 				{
 					InitiliaseLevel2();
 				}
-				
-				InGame = GameState::GAME;
-			}
-			//initialise game when clicking on "Quit"
-			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
-			{
+				Timer = 0;
 				ClearWin();
-				InitialiseMenu();
-				InGame = GameState::MENU;
+				InGame = GameState::GAME;
+				break;
+			}
+
+			if (QuitButton != NULL)
+			{
+				//initialise game when clicking on "Quit"
+				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+				{
+					ClearWin();
+					InitialiseMenu();
+					InGame = GameState::MENU;
+				}
 			}
 			break;
 		}
@@ -958,18 +1019,36 @@ void CGameManager::Update()
 			if (RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
-				RetryButton->setString("[Quit]");
+				RetryButton->setString("[Retry]");
 				RetryButton->setOutlineThickness(3.0f);
-				RetryButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
+				RetryButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight);
 				
 			}
 			else
 			{
 				//reset text when not hovering
 				RetryButton->setOutlineThickness(1.0f);
-				RetryButton->setString("Quit");
-				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
+				RetryButton->setString("Retry");
+				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
 				
+			}
+
+			//When hovering over retry button
+			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				//change text and move position for consistancy
+				QuitButton->setString("[Quit]");
+				QuitButton->setOutlineThickness(3.0f);
+				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
+
+			}
+			else
+			{
+				//reset text when not hovering
+				QuitButton->setOutlineThickness(1.0f);
+				QuitButton->setString("Quit");
+				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
+
 			}
 			//Clear screen with white
 			Window->clear(Color::White);
@@ -977,6 +1056,7 @@ void CGameManager::Update()
 			Window->draw(*WinSprite);
 	
 			Window->draw(*RetryButton);
+			Window->draw(*QuitButton);
 			//display window
 			Window->display();
 
@@ -984,8 +1064,17 @@ void CGameManager::Update()
 			if (Mouse::isButtonPressed(Mouse::Left) && RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				ClearGameOver();
-				InitialiseMenu();
-				InGame = GameState::MENU;
+				InitiliaseLevel1();
+				InGame = GameState::GAME;
+			}
+
+			if (QuitButton != NULL)
+			{
+				//initialise game when clicking on "Quit"
+				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+				{
+					exit(0);
+				}
 			}
 		}
 			break;
@@ -1093,7 +1182,7 @@ void CGameManager::CreateBird2(float _size)
 	BodyDef->type = b2BodyType::b2_dynamicBody;
 	b2Body* Body = World->CreateBody(BodyDef);
 	b2CircleShape* Shape = new b2CircleShape;
-	Shape->m_radius = (_size / 4) / SCALE;
+	Shape->m_radius = ((_size - 10) / 4) / SCALE;
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 	FixtureDef->density = 0.5f;
 	FixtureDef->friction = 0.7f;
@@ -1101,7 +1190,7 @@ void CGameManager::CreateBird2(float _size)
 	Body->CreateFixture(FixtureDef);
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
-	sprite->setOrigin(_size/2 - 5, _size / 2 - 5);
+	sprite->setOrigin(_size/2 - 10, _size / 2 - 10);
 	sprite->setScale(_size / 100, _size / 100);
 	BirdSprite = sprite;
 	BirdBody = Body;
@@ -1175,13 +1264,13 @@ void CGameManager::CreateBird3()
 	BirdBody = Body;
 }
 //create a destructable object in the game world setting the object size, position, texture path and shape
-void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape)
+void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape, b2BodyType _type)
 {
 	Texture* texture = new Texture;
 	texture->loadFromFile(texPath);
 	b2BodyDef* BodyDef = new b2BodyDef;
 	BodyDef->position = b2Vec2(PosX / SCALE, PosY / SCALE);
-	BodyDef->type = b2BodyType::b2_dynamicBody;
+	BodyDef->type = _type;
 	b2Body* Body = World->CreateBody(BodyDef);
 	b2FixtureDef* FixtureDef = new b2FixtureDef;
 

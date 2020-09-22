@@ -54,7 +54,7 @@ public:
 	void CreateBird2(float _size);
 	void CreateClones();
 	void CreateBird3();
-	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f,BShape _shape = BShape::BOX);
+	void CreateDestructable(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX = 1.0f, float _scaleY = 1.0f,BShape _shape = BShape::BOX, b2BodyType _type = b2BodyType::b2_dynamicBody);
 	void CreateEnemy(b2World* World, float SizeX, float SizeY, float PosX, float PosY, String texPath, float _scaleX, float _scaleY, BShape _shape);
 	void JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1, b2Vec2 _anchorB2, BJoint _joint, b2Vec2 _wAnchor1 = b2Vec2(), b2Vec2 _wAnchor2 = b2Vec2());
 
