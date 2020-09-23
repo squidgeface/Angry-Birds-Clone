@@ -550,7 +550,7 @@ void CGameManager::Update()
 			}
 
 			//Show direction vector when mouse is held and dragged for firing
-			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()) || IsPressed && Mouse::isButtonPressed(Mouse::Left))
+			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds())|| IsPressed && Mouse::isButtonPressed(Mouse::Left))
 			{
 				//Get initial mouse position
 				if (!IsPressed)
@@ -615,6 +615,7 @@ void CGameManager::Update()
 					//reset bird to starting position
 						BirdBody->SetEnabled(false);
 						BirdBody->SetTransform(b2Vec2(200 / SCALE, 460 / SCALE), 0);
+						Reset = true;
 				}
 			}
 
@@ -795,11 +796,11 @@ void CGameManager::Update()
 
 			//get current elapsed time of frame
 
-			deltaTime = deltaClock.restart();
+			DeltaTime = DeltaClock.restart();
 			//check for time passed after all birds are fired for lose condition
 			if (BirdsUsed[0] == 1 && BirdsUsed[1] == 1 && BirdsUsed[2] == 1 && (Level == 1 || Level == 2))
 			{
-				Timer += deltaTime.asSeconds();
+				Timer += DeltaTime.asSeconds();
 				//When last bird fired and 5 seconds has passed
 				if (Timer >= 5)
 				{
@@ -1102,7 +1103,7 @@ void CGameManager::CreateBird()
 	sf::Sprite* sprite = new Sprite;
 	sprite->setTexture(*texture);
 	sprite->setOrigin(60 / 2, 60 / 2);
-	sprite->setScale(0.6, 0.6);
+	sprite->setScale(0.6f, 0.6f);
 	BirdSprite = sprite;
 	BirdBody = Body;
 }
