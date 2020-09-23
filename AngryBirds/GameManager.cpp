@@ -91,22 +91,21 @@ void CGameManager::InitiliaseLevel1()
 	InstructionsText->setPosition(5.0f, 0.0f);
 
 	//create ceiling and joint objects
+	//create swinging pendulum
 	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 250 / SCALE, Bodies[0]->GetPosition().y + 0.3f), b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), BJoint::DIST);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
-	
 	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x + 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(Bodies[2]->GetPosition().x - 25.0f / SCALE, Bodies[2]->GetPosition().y), BJoint::REVO);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x - 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(), BJoint::REVO);
-
+	//Create pully
 	CreateObject(World, 100, 10, 400, 400, "Resources/Textures/plank.png", BShape::BOX);
 	CreateObject(World, 1, 250, 600, 500, "Resources/Textures/gate.png", BShape::BOX);
 	JoinObjects(Bodies[4], Bodies[5], b2Vec2(Bodies[4]->GetPosition().x, Bodies[4]->GetPosition().y), b2Vec2(Bodies[5]->GetPosition().x, Bodies[4]->GetPosition().y), BJoint::PULLY, b2Vec2(utils::HSWidth - 200, 0.0f), b2Vec2(utils::HSWidth + 200, 0.0f));
 	Bodies[4]->SetFixedRotation(true);
 	Bodies[5]->SetFixedRotation(true);
 	Bodies[4]->SetGravityScale(0.5f);
-
 
 	//create ground
 	CreateObject(World, utils::ScreenWidth, 25.0f, utils::HSWidth, utils::ScreenHeight, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
@@ -227,10 +226,8 @@ void CGameManager::InitiliaseLevel2()
 	JoinObjects(Bodies[0], Bodies[1], b2Vec2(Bodies[0]->GetPosition().x + 50.0f / SCALE, Bodies[0]->GetPosition().y), b2Vec2(), BJoint::REVO);
 	CreateObject(World, 100, 10, 750, 100, "Resources/Textures/plank.png", BShape::BOX);
 	JoinObjects(Bodies[1], Bodies[2], b2Vec2(Bodies[1]->GetPosition().x - 50.0f / SCALE, Bodies[1]->GetPosition().y), b2Vec2(), BJoint::REVO);
-	
 	CreateObject(World, utils::ScreenWidth, 0.0f, utils::HSWidth, 0.0f, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
 	JoinObjects(Bodies[2], Bodies[3], b2Vec2(Bodies[2]->GetPosition().x + 50.0f / SCALE, Bodies[2]->GetPosition().y), b2Vec2(Bodies[3]->GetPosition().x + 250.0f / SCALE, Bodies[3]->GetPosition().y + 0.3f), BJoint::DIST);
-
 
 	//create ground and ceiling //body[4]
 	CreateObject(World, utils::ScreenWidth, 25.0f, utils::HSWidth, utils::ScreenHeight, "Resources/Textures/ground.png", BShape::BOX, 1.0f, 1.0f, b2BodyType::b2_staticBody);
@@ -251,7 +248,7 @@ void CGameManager::InitiliaseLevel2()
 	BirdBody->SetEnabled(false);
 	BirdBody->SetSleepingAllowed(false);
 
-	//Create All platforms and obstacles
+	//Create destructable platforms and box obstacles
 	float boxSize = 50.0f;
 	CreateDestructable(World, 100, 10, 740, 500, "Resources/Textures/plank.png", 2.0, 1.0);
 	CreateObject(World, boxSize, boxSize, 725, 540, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
@@ -264,15 +261,9 @@ void CGameManager::InitiliaseLevel2()
 	CreateObject(World, boxSize, boxSize, 660, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 820, 460, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
 	CreateObject(World, boxSize, boxSize, 820, 480, "Resources/Textures/box.png", BShape::BOX, 0.5f, 0.5f);
-	//CreateDestructable(World, 100, 10, 740, 570, "Resources/Textures/plank.png");
-	//Destructable planks
-	
-	
-
 
 	//Destructable enemy
 	CreateEnemy(World, 50, 50, 630, 10, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
-
 	CreateEnemy(World, 50, 50, 725, 470, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 	CreateEnemy(World, 50, 50, 750, 470, "Resources/Textures/enemy.png", 0.5f, 0.5f, BShape::CIRCLE);
 
