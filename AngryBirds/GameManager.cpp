@@ -900,7 +900,7 @@ void CGameManager::Update()
 				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
 
 			}
-			//When hovering over retry button
+			//When hovering over quit button
 			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
@@ -945,16 +945,14 @@ void CGameManager::Update()
 				break;
 			}
 
-			if (QuitButton != NULL)
+			//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
-				//initialise game when clicking on "Quit"
-				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
-				{
-					ClearWin();
-					InitialiseMenu();
-					InGame = GameState::MENU;
-				}
+				ClearWin();
+				InitialiseMenu();
+				InGame = GameState::MENU;
 			}
+			
 			break;
 		}
 		case GameState::END:
@@ -966,7 +964,6 @@ void CGameManager::Update()
 				RetryButton->setString("[Retry]");
 				RetryButton->setOutlineThickness(3.0f);
 				RetryButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight);
-				
 			}
 			else
 			{
@@ -974,17 +971,15 @@ void CGameManager::Update()
 				RetryButton->setOutlineThickness(1.0f);
 				RetryButton->setString("Retry");
 				RetryButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
-				
 			}
 
-			//When hovering over retry button
+			//When hovering over quit button
 			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
 				QuitButton->setString("[Quit]");
 				QuitButton->setOutlineThickness(3.0f);
 				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
-
 			}
 			else
 			{
@@ -992,13 +987,12 @@ void CGameManager::Update()
 				QuitButton->setOutlineThickness(1.0f);
 				QuitButton->setString("Quit");
 				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
-
 			}
+
 			//Clear screen with white
 			Window->clear(Color::White);
 			//Draw win screen
 			Window->draw(*WinSprite);
-	
 			Window->draw(*RetryButton);
 			Window->draw(*QuitButton);
 			//display window
@@ -1010,16 +1004,15 @@ void CGameManager::Update()
 				ClearGameOver();
 				InitiliaseLevel1();
 				InGame = GameState::GAME;
+				break;
 			}
 
-			if (QuitButton != NULL)
+			//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
-				//initialise game when clicking on "Quit"
-				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
-				{
-					exit(0);
-				}
+				exit(0);
 			}
+			
 		}
 			break;
 		default:
@@ -1071,25 +1064,28 @@ void CGameManager::CreateObject(b2World* World, float SizeX, float SizeY, float 
 	Sprites.push_back(sprite);
 }
 
-//creat the player bird object
+//creat the player bird1 object
 void CGameManager::CreateBird()
 {
+	//check if birdbody is not null before destroying it
 	if (BirdBody != NULL)
 	{
 		World->DestroyBody(BirdBody);
 	}
-
+	//destroy clone bodies if found
 	for (size_t i = 0; i < CloneBodies.size(); i++)
 	{
 		World->DestroyBody(CloneBodies[i]);
 	}
-
+	//clear clone vectors
 	while (CloneSprites.size() > 0)
 	{
 		CloneSprites.pop_back();
 		CloneBodies.pop_back();
 	}
+	//set to bird 1 as active bird
 	BirdCount = 1;
+
 	Texture* texture = new Texture;
 	texture->loadFromFile("Resources/Textures/grumpybird.png");
 	b2BodyDef* BodyDef = new b2BodyDef;
@@ -1111,9 +1107,10 @@ void CGameManager::CreateBird()
 	BirdBody = Body;
 }
 
-//creat the player bird object Splits
+//creat the player bird2 object that Splits
 void CGameManager::CreateBird2(float _size)
 {
+	//set to bird 2 as active bird
 	BirdCount = 2;
 	if (BirdBody != NULL)
 	{
@@ -1142,7 +1139,7 @@ void CGameManager::CreateBird2(float _size)
 
 void CGameManager::CreateClones()
 {
-	BirdCount = 2;
+	//create three small bird clones as the same location as bird 2
 	for (size_t i = 0; i < 3; i++)
 	{
 		Texture* texture = new Texture;
@@ -1162,13 +1159,14 @@ void CGameManager::CreateClones()
 		sprite->setTexture(*texture);
 		sprite->setOrigin(25, 25);
 		sprite->setScale(0.4f, 0.4f);
+		//set velocity of this bird as the same as bird2 plus an offset ased on which of the three birds it is
 		Body->SetLinearVelocity(b2Vec2(BirdBody->GetLinearVelocity().x, BirdBody->GetLinearVelocity().y - i * 1));
 		CloneSprites.push_back(sprite);
 		CloneBodies.push_back(Body);
 	}
 }
 
-//creat the player bird object divebomb
+//creat the player bird 3 object - the divebomb bird
 void CGameManager::CreateBird3()
 {
 	for (size_t i = 0; i < CloneBodies.size(); i++)
@@ -1181,7 +1179,7 @@ void CGameManager::CreateBird3()
 		CloneSprites.pop_back();
 		CloneBodies.pop_back();
 	}
-
+	//set to bird 3 as active bird
 	BirdCount = 3;
 	if (BirdBody != NULL)
 	{
@@ -1230,7 +1228,6 @@ void CGameManager::CreateDestructable(b2World* World, float SizeX, float SizeY, 
 		Shape->m_radius = SizeX / 2 * _scaleX / SCALE;
 		FixtureDef->shape = Shape;
 	}
-	
 	
 	FixtureDef->density = 1.f;
 	FixtureDef->friction = 0.7f;
@@ -1313,6 +1310,7 @@ void CGameManager::JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1,
 	{
 
 		b2PulleyJointDef* newJoint3 = new b2PulleyJointDef();
+		//set anchor positions of the pully at 100 above the bodies
 		newJoint3->Initialize(_body1, _body2, b2Vec2(_body1->GetPosition().x, _body1->GetPosition().y + 100), b2Vec2(_body2->GetPosition().x, _body2->GetPosition().y + 100), _body1->GetWorldCenter(), _body2->GetWorldCenter(), 0.5f);
 		World->CreateJoint(newJoint3);
 		break;
@@ -1322,6 +1320,4 @@ void CGameManager::JoinObjects(b2Body* _body1, b2Body* _body2, b2Vec2 _anchorB1,
 		break;
 	}
 	}
-	
-
 }
