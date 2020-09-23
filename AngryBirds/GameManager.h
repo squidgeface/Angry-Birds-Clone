@@ -82,8 +82,8 @@ protected:
 	//player object pointers
 	Sprite* BirdSprite = 0;
 	b2Body* BirdBody = 0;
-	vector<Sprite*> cloneSprites;
-	vector<b2Body*> cloneBodies;
+	vector<Sprite*> CloneSprites;
+	vector<b2Body*> CloneBodies;
 	//arrow sprite
 	Sprite* Arrow = 0;
 	//sling sprite
@@ -113,12 +113,10 @@ protected:
 	bool Reset = true;
 	GameState InGame = GameState::MENU;
 	int BirdCount = 0;
-	int BirdsUsed[3];
+	int BirdsUsed[3] = { 0,0,0 };
 	int Level = 1;
 	float Timer = 0;
 	Clock deltaClock;
-	Time prevDeltaTime;
 	Time deltaTime;
-	Time currentTime;
 };
 

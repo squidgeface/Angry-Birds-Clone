@@ -8,12 +8,12 @@
 //
 // File Name   : GameManager.cpp
 // Description : GameManager implementation file
-// Author      : alexander jenkins
-// Mail        : alexander.jenkins@mds.ac.nz
+// Author      : alexander jenkins, raven clancey-peetz
+// Mail        : alexander.jenkins@mds.ac.nz, raven.clancey-peetz@mds.ac.nz
 //
 
 #include "GameManager.h"
-
+//GameManager initalisation
 CGameManager::CGameManager()
 {
 	Window = new RenderWindow(VideoMode(utils::ScreenWidth, utils::ScreenHeight, 32), "Grumpy Birds");
@@ -25,29 +25,11 @@ CGameManager::CGameManager()
 	MouseSprite = new Sprite;
 	MouseSprite->setTexture(*MouseTex);
 }
-
+//GameManager destructor
 CGameManager::~CGameManager()
 {
 	ClearLevel1();
-	ClearGameOver();
-
-	while (Sprites.size() > 0)
-	{
-		Sprites.pop_back();
-	}
-	while (Bodies.size() > 0)
-	{
-		Bodies.pop_back();
-	}
-	while (DestSprites.size() > 0)
-	{
-		DestSprites.pop_back();
-	}
-	while (DestBodies.size() > 0)
-	{
-		DestBodies.pop_back();
-	}
-	
+	ClearWin();
 }
 //Initialise Menu
 void CGameManager::InitialiseMenu()
@@ -178,43 +160,25 @@ void CGameManager::InitiliaseLevel1()
 void CGameManager::ClearLevel1()
 {
 	EnemySize = 0;
+	delete Arrow;
 	Arrow = 0;
+	delete SlingSprite;
 	SlingSprite = 0;
+	delete BackgroundSprite;
 	BackgroundSprite = 0;
 	BirdBody = 0;
+	delete BirdSprite;
 	BirdSprite = 0;
 
-	while (Sprites.size() > 0)
-	{
-		Sprites.pop_back();
-	}
-	while (Bodies.size() > 0)
-	{
-		Bodies.pop_back();
-	}
+	Sprites.clear();
+	Bodies.clear();
+	DestSprites.clear();
+	DestBodies.clear();
+	EnemySprites.clear();
+	EnemyBodies.clear();
+	CloneSprites.clear();
+	CloneBodies.clear();
 
-	while (DestSprites.size() > 0)
-	{
-		DestSprites.pop_back();
-	}
-	while (DestBodies.size() > 0)
-	{
-		DestBodies.pop_back();
-	}
-	
-	while (EnemyBodies.size() > 0)
-	{
-		EnemyBodies.pop_back();
-	}	
-	while (EnemySprites.size() > 0)
-	{
-		EnemySprites.pop_back();
-	}
-	while (cloneSprites.size() > 0)
-	{
-		cloneSprites.pop_back();
-		cloneBodies.pop_back();
-	}
 	//clear world body list
 	while (World->GetBodyCount() > 0)
 	{
@@ -324,47 +288,34 @@ void CGameManager::InitiliaseLevel2()
 void CGameManager::ClearLevel2()
 {
 	EnemySize = 0;
+	delete Arrow;
 	Arrow = 0;
+	delete SlingSprite;
 	SlingSprite = 0;
+	delete BackgroundSprite;
 	BackgroundSprite = 0;
 	BirdBody = 0;
+	delete BirdSprite;
 	BirdSprite = 0;
 
-	while (Sprites.size() > 0)
-	{
-		Sprites.pop_back();
-	}
-	while (Bodies.size() > 0)
-	{
-		Bodies.pop_back();
-	}
+	Sprites.clear();
+	Bodies.clear();
+	DestSprites.clear();
+	DestBodies.clear();
+	EnemySprites.clear();
+	EnemyBodies.clear();
+	CloneSprites.clear();
+	CloneBodies.clear();
 
-	while (DestSprites.size() > 0)
-	{
-		DestSprites.pop_back();
-	}
-	while (DestBodies.size() > 0)
-	{
-		DestBodies.pop_back();
-	}
-
-	while (EnemyBodies.size() > 0)
-	{
-		EnemyBodies.pop_back();
-	}
-	while (EnemySprites.size() > 0)
-	{
-		EnemySprites.pop_back();
-	}
-	while (cloneSprites.size() > 0)
-	{
-		cloneSprites.pop_back();
-		cloneBodies.pop_back();
-	}
 	//clear world body list
 	while (World->GetBodyCount() > 0)
 	{
 		World->DestroyBody(World->GetBodyList());
+	}
+	//clear world joint list
+	while (World->GetJointCount() > 0)
+	{
+		World->DestroyJoint(World->GetJointList());
 	}
 }
 //Initialise win screen
@@ -462,10 +413,9 @@ void CGameManager::Update()
 	//Game update
 	while (Window->isOpen())
 	{
-		//if (Mouse::isButtonPressed(Mouse::Left) == false) {
-			//set mouse sprite to follow mouse for bird collision
-			MouseSprite->setPosition(Mouse::getPosition(*Window).x - 25.0f, Mouse::getPosition(*Window).y - 25.0f);
-		//}
+	
+		//set mouse sprite to follow mouse for bird collision
+		MouseSprite->setPosition(Mouse::getPosition(*Window).x - 25.0f, Mouse::getPosition(*Window).y - 25.0f);
 
 		Event event;
 		while (Window->pollEvent(event))
@@ -486,7 +436,6 @@ void CGameManager::Update()
 				PlayButton->setString("[Play]");
 				PlayButton->setOutlineThickness(3.0f);
 				PlayButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight);
-
 			}
 			else
 			{
@@ -494,7 +443,6 @@ void CGameManager::Update()
 				PlayButton->setOutlineThickness(1.0f);
 				PlayButton->setString("Play");
 				PlayButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight);
-
 			}
 			//When hovering over quit button
 			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
@@ -503,7 +451,6 @@ void CGameManager::Update()
 				QuitButton->setString("[Quit]");
 				QuitButton->setOutlineThickness(3.0f);
 				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
-
 			}
 			else
 			{
@@ -511,13 +458,11 @@ void CGameManager::Update()
 				QuitButton->setOutlineThickness(1.0f);
 				QuitButton->setString("Quit");
 				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
-
 			}
 			//Clear screen with white
 			Window->clear(Color::White);
-			//Draw win screen
+			//Draw sprites and buttons
 			Window->draw(*WinSprite);
-
 			Window->draw(*PlayButton);
 			Window->draw(*QuitButton);
 			//display window
@@ -531,15 +476,12 @@ void CGameManager::Update()
 				InGame = GameState::GAME;
 				break;
 			}
-			if (QuitButton != NULL)
-			{
-				//initialise game when clicking on "Quit"
-				if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
-				{
-					Window->close();
-				}
-			}
 
+				//initialise game when clicking on "Quit"
+			if (Mouse::isButtonPressed(Mouse::Left) && QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
+			{
+				Window->close();
+			}
 			break;
 		}
 		case GameState::GAME:
@@ -561,9 +503,10 @@ void CGameManager::Update()
 				Reset = true;
 			}
 			
+			//if birds are available to be fired
 			if (Keyboard::isKeyPressed(Keyboard::Num1) && BirdsUsed[0] == 0)
 			{
-				//Clear and reset entire level
+				//Create bird 1
 				CreateBird();
 				BirdBody->SetEnabled(false);
 				BirdBody->SetSleepingAllowed(false);
@@ -571,7 +514,7 @@ void CGameManager::Update()
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Num2) && BirdsUsed[1] == 0)
 			{
-				//Clear and reset entire level
+				//Create bird 2
 				CreateBird2(75.0f);
 				BirdBody->SetEnabled(false);
 				BirdBody->SetSleepingAllowed(false);
@@ -579,7 +522,7 @@ void CGameManager::Update()
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Num3) && BirdsUsed[2] == 0)
 			{
-				//Clear and reset entire level
+				//Create bird 3
 				CreateBird3();
 				BirdBody->SetEnabled(false);
 				BirdBody->SetSleepingAllowed(false);
@@ -591,7 +534,7 @@ void CGameManager::Update()
 			{
 				if (BirdCount == 2)
 				{
-					//bird splits into three
+					//bird 2 splits into three
 					CreateClones();
 					BirdBody->SetEnabled(false);
 					BirdBody->SetTransform(b2Vec2(-100, 0), 0);
@@ -599,12 +542,12 @@ void CGameManager::Update()
 				}
 				else if (BirdCount == 3)
 				{
+					//Bird 3 stops and becomes heavy
 					Reset = true;
 					BirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 					BirdBody->SetGravityScale(3.0f);
 				}
 			}
-			
 
 			//Show direction vector when mouse is held and dragged for firing
 			if (Mouse::isButtonPressed(Mouse::Left) && BirdSprite->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()) || IsPressed && Mouse::isButtonPressed(Mouse::Left))
@@ -617,15 +560,13 @@ void CGameManager::Update()
 					MouseInitialY = Mouse::getPosition(*Window).y;
 				}
 
-
 				if (Reset)
 				{
-					
-					
-					//MouseSprite->setPosition(Vector2f(BirdBody->GetPosition().x, BirdBody->GetPosition().y));
 					//Set bird body position to follow mouse
 					BirdBody->SetLinearVelocity(b2Vec2(0, 0));
 					BirdBody->SetTransform(b2Vec2(Mouse::getPosition(*Window).x / SCALE, Mouse::getPosition(*Window).y / SCALE), BirdBody->GetAngle());
+					//Set bounds for bird sprite movement when firing
+					//y bounds
 					if (BirdBody->GetTransform().p.y > (utils::ScreenHeight - 15.0f)/SCALE)
 					{
 						BirdBody->SetTransform(b2Vec2(BirdBody->GetTransform().p.x, (utils::ScreenHeight - 15.0f) / SCALE), 0.0f);
@@ -634,6 +575,7 @@ void CGameManager::Update()
 					{
 						BirdBody->SetTransform(b2Vec2(BirdBody->GetTransform().p.x, (utils::HSHeight) / SCALE), 0.0f);
 					}
+					//x bounds
 					if (BirdBody->GetTransform().p.x > 200 / SCALE)
 					{
 						BirdBody->SetTransform(b2Vec2(200 / SCALE, BirdBody->GetTransform().p.y), 0.0f);
@@ -646,7 +588,7 @@ void CGameManager::Update()
 					//create a force vector between initial position and mouse position for transforming the arrow sprite
 					vec2 forceVec = vec2(Mouse::getPosition(*Window).x - MouseInitialX, Mouse::getPosition(*Window).y - MouseInitialY);
 					forceVec = normalize(forceVec);
-					//Scale and rotate the arrow sprite to show trajectory
+					//Scale and rotate the arrow sprite to show trajectory and power of firing
 					Arrow->setRotation(atan2f(forceVec.y, forceVec.x) * (180.0f / float(PI)) - 180.0f);
 					Arrow->setScale(Distancev2(vec2(MouseInitialX, MouseInitialY), vec2(Mouse::getPosition(*Window).x, Mouse::getPosition(*Window).y)) / 200.0f, 1.0f);
 				}
@@ -657,19 +599,20 @@ void CGameManager::Update()
 				IsPressed = false;
 				MouseReleaseX = Mouse::getPosition(*Window).x;
 				MouseReleaseY = Mouse::getPosition(*Window).y;
-
+				//distance of the initial and final position
 				float distance = Distancev2(vec2(MouseInitialX, MouseInitialY), vec2(MouseReleaseX, MouseReleaseY));
-
+				//only fire if the distance is greater than 0
 				if (distance > 0)
 				{
 					//hide arrow sprite
 					Arrow->scale(0.0f, 0.0f);
-
+					//run fire code
 					if (Reset)
 						IsFired = true;
 				}
 				else
 				{
+					//reset bird to starting position
 						BirdBody->SetEnabled(false);
 						BirdBody->SetTransform(b2Vec2(200 / SCALE, 460 / SCALE), 0);
 				}
@@ -681,6 +624,7 @@ void CGameManager::Update()
 				//create a force vector between the mouse and initial bird position
 				vec2 forceVec = vec2(MouseReleaseX - MouseInitialX, MouseReleaseY - MouseInitialY);
 				forceVec = normalize(forceVec);
+				//set this bird as being fired
 				BirdsUsed[BirdCount - 1] = 1;
 				//Get the distance between the two postions
 				float distance = Distancev2(vec2(MouseInitialX, MouseInitialY), vec2(MouseReleaseX, MouseReleaseY));
@@ -689,13 +633,13 @@ void CGameManager::Update()
 				//apply force to bird body
 				BirdBody->SetEnabled(true);
 				BirdBody->ApplyForceToCenter(b2Vec2(forceVec.x, forceVec.y), true);
-
+				//reset for next bird
 				IsFired = false;
 				Reset = false;
 			}
 
 
-			/** Simulate the world */
+			/** Simulate the world **/
 			World->Step(1 / 60.f, 8, 3);
 			//Clear screen with white
 			Window->clear(Color::White);
@@ -703,24 +647,23 @@ void CGameManager::Update()
 			//Drawing spites (order matters)
 			Window->draw(*BackgroundSprite);
 
-			//Set sprites to follow b2Body position and rotation
+			//Set static sprites to follow b2Body position and rotation
 			for (size_t i = 0; i < Sprites.size(); i++)
 			{
 				Sprites[i]->setPosition(SCALE * Bodies[i]->GetPosition().x, Bodies[i]->GetPosition().y * SCALE);
 				Sprites[i]->setRotation(Bodies[i]->GetAngle() * 180 / b2_pi);
 				Window->draw(*Sprites[i]);
 			}
-			//Set sprites to follow b2Body position and rotation
+			//Set destructable sprites to follow b2Body position and rotation
 			for (size_t i = 0; i < DestSprites.size(); i++)
 			{
 				DestSprites[i]->setPosition(SCALE * DestBodies[i]->GetPosition().x, DestBodies[i]->GetPosition().y * SCALE);
 				DestSprites[i]->setRotation(DestBodies[i]->GetAngle() * 180 / b2_pi);
 				Window->draw(*DestSprites[i]);
 			}
-			//Set sprites to follow b2Body position and rotation
+			//Set enemy sprites to follow b2Body position and rotation
 			for (size_t i = 0; i < EnemySprites.size(); i++)
 			{
-				
 				EnemySprites[i]->setPosition(SCALE * EnemyBodies[i]->GetPosition().x, EnemyBodies[i]->GetPosition().y * SCALE);
 				EnemySprites[i]->setRotation(EnemyBodies[i]->GetAngle() * 180 / b2_pi);
 				Window->draw(*EnemySprites[i]);
@@ -730,12 +673,12 @@ void CGameManager::Update()
 					EnemyBodies[i]->SetAngularVelocity(0.0f);
 				}
 			}
-
-			for (size_t i = 0; i < cloneSprites.size(); i++)
+			//Set clone sprites to follow b2Body position and rotation
+			for (size_t i = 0; i < CloneSprites.size(); i++)
 			{
-				cloneSprites[i]->setPosition(SCALE * cloneBodies[i]->GetPosition().x, cloneBodies[i]->GetPosition().y * SCALE);
-				cloneSprites[i]->setRotation(cloneBodies[i]->GetAngle() * 180 / b2_pi);
-				Window->draw(*cloneSprites[i]);
+				CloneSprites[i]->setPosition(SCALE * CloneBodies[i]->GetPosition().x, CloneBodies[i]->GetPosition().y * SCALE);
+				CloneSprites[i]->setRotation(CloneBodies[i]->GetAngle() * 180 / b2_pi);
+				Window->draw(*CloneSprites[i]);
 			}
 
 			//Set bird body max velocity
@@ -768,11 +711,11 @@ void CGameManager::Update()
 			}
 
 			//check for clone sprite destructable collision
-			for (size_t j = 0; j < cloneSprites.size(); j++)
+			for (size_t j = 0; j < CloneSprites.size(); j++)
 			{
 				for (size_t i = 0; i < DestSprites.size(); i++)
 				{
-					if (cloneSprites[j]->getGlobalBounds().intersects(DestSprites[i]->getGlobalBounds()))
+					if (CloneSprites[j]->getGlobalBounds().intersects(DestSprites[i]->getGlobalBounds()))
 					{
 						World->DestroyBody(DestBodies[i]);
 						DestBodies.erase(DestBodies.begin() + i);
@@ -781,11 +724,10 @@ void CGameManager::Update()
 				}
 			}
 
-		
-
 			//Check for player and enemy object collision and object ground collision
 			for (size_t i = 0; i < EnemySprites.size(); i++)
 			{
+				//level 1 and level 2 have different floor sprites for enemy collision
 				if (Level == 1)
 				{
 					if (BirdSprite->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()) || EnemySprites[i]->getGlobalBounds().intersects(Sprites[6]->getGlobalBounds()))
@@ -809,11 +751,11 @@ void CGameManager::Update()
 			}
 
 			//check for clone sprite enemy collision
-			for (size_t j = 0; j < cloneSprites.size(); j++)
+			for (size_t j = 0; j < CloneSprites.size(); j++)
 			{
 				for (size_t i = 0; i < EnemySprites.size(); i++)
 				{
-					if (cloneSprites[j]->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()))
+					if (CloneSprites[j]->getGlobalBounds().intersects(EnemySprites[i]->getGlobalBounds()))
 					{
 						World->DestroyBody(EnemyBodies[i]);
 						EnemyBodies.erase(EnemyBodies.begin() + i);
@@ -827,16 +769,7 @@ void CGameManager::Update()
 			Bodies[4]->SetLinearVelocity(b2Vec2(0.0f, Bodies[4]->GetLinearVelocity().y));
 			Bodies[5]->SetLinearVelocity(b2Vec2(0.0f, Bodies[5]->GetLinearVelocity().y));
 
-			
-			//get current elapsed time of frame
-			currentTime = deltaClock.getElapsedTime();
-
-			deltaTime = (currentTime - prevDeltaTime);
-
-			prevDeltaTime = currentTime;
-			deltaClock.restart();
-
-			//when all enemies are dead (or debug pres 'A' - initialise game over
+			//when all enemies are dead (or debug pres 'A') - initialise win level
 			if (EnemySize == 0 || Keyboard::isKeyPressed(Keyboard::A))
 			{
 				if (Level == 1)
@@ -859,11 +792,16 @@ void CGameManager::Update()
 				}
 			}
 
+
+			//get current elapsed time of frame
+
+			deltaTime = deltaClock.restart();
+			//check for time passed after all birds are fired for lose condition
 			if (BirdsUsed[0] == 1 && BirdsUsed[1] == 1 && BirdsUsed[2] == 1 && (Level == 1 || Level == 2))
 			{
-				Timer += abs(deltaTime.asMicroseconds());
-
-				if (Timer >= 150000)
+				Timer += deltaTime.asSeconds();
+				//When last bird fired and 5 seconds has passed
+				if (Timer >= 5)
 				{
 					if (Level == 1)
 					{
@@ -873,25 +811,23 @@ void CGameManager::Update()
 					{
 						ClearLevel2();
 					}
-
+					//initialise lose screen
 					InitialiseLose();
 					InGame = GameState::LOSE;
 				}
-
 			}
 
 			break;
 		}
 		case GameState::WIN:
 		{
-			//When hovering over retry button
+			//When hovering over continue button
 			if (RetryButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
 				RetryButton->setString("[Continue]");
 				RetryButton->setOutlineThickness(3.0f);
 				RetryButton->setPosition(utils::HSWidth - 118.0f, utils::HSHeight);
-
 			}
 			else
 			{
@@ -899,16 +835,14 @@ void CGameManager::Update()
 				RetryButton->setOutlineThickness(1.0f);
 				RetryButton->setString("Continue");
 				RetryButton->setPosition(utils::HSWidth - 100.0f, utils::HSHeight);
-
 			}
-			//When hovering over retry button
+			//When hovering over quit button
 			if (QuitButton->getGlobalBounds().intersects(MouseSprite->getGlobalBounds()))
 			{
 				//change text and move position for consistancy
 				QuitButton->setString("[Quit]");
 				QuitButton->setOutlineThickness(3.0f);
 				QuitButton->setPosition(utils::HSWidth - 93.0f, utils::HSHeight + 100.0f);
-
 			}
 			else
 			{
@@ -916,7 +850,6 @@ void CGameManager::Update()
 				QuitButton->setOutlineThickness(1.0f);
 				QuitButton->setString("Quit");
 				QuitButton->setPosition(utils::HSWidth - 75.0f, utils::HSHeight + 100.0f);
-
 			}
 			//Clear screen with white
 			Window->clear(Color::White);
@@ -1146,15 +1079,15 @@ void CGameManager::CreateBird()
 		World->DestroyBody(BirdBody);
 	}
 
-	for (size_t i = 0; i < cloneBodies.size(); i++)
+	for (size_t i = 0; i < CloneBodies.size(); i++)
 	{
-		World->DestroyBody(cloneBodies[i]);
+		World->DestroyBody(CloneBodies[i]);
 	}
 
-	while (cloneSprites.size() > 0)
+	while (CloneSprites.size() > 0)
 	{
-		cloneSprites.pop_back();
-		cloneBodies.pop_back();
+		CloneSprites.pop_back();
+		CloneBodies.pop_back();
 	}
 	BirdCount = 1;
 	Texture* texture = new Texture;
@@ -1230,23 +1163,23 @@ void CGameManager::CreateClones()
 		sprite->setOrigin(25, 25);
 		sprite->setScale(0.4f, 0.4f);
 		Body->SetLinearVelocity(b2Vec2(BirdBody->GetLinearVelocity().x, BirdBody->GetLinearVelocity().y - i * 1));
-		cloneSprites.push_back(sprite);
-		cloneBodies.push_back(Body);
+		CloneSprites.push_back(sprite);
+		CloneBodies.push_back(Body);
 	}
 }
 
 //creat the player bird object divebomb
 void CGameManager::CreateBird3()
 {
-	for (size_t i = 0; i < cloneBodies.size(); i++)
+	for (size_t i = 0; i < CloneBodies.size(); i++)
 	{
-		World->DestroyBody(cloneBodies[i]);
+		World->DestroyBody(CloneBodies[i]);
 	}
 
-	while (cloneSprites.size() > 0)
+	while (CloneSprites.size() > 0)
 	{
-		cloneSprites.pop_back();
-		cloneBodies.pop_back();
+		CloneSprites.pop_back();
+		CloneBodies.pop_back();
 	}
 
 	BirdCount = 3;
